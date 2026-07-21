@@ -1,6 +1,6 @@
-# Signatürk 🤟
+# SignTurk 🤟
 
-**Signatürk** — Turkish Sign Language (TİD) **recognition**, **animation**, and **text-to-speech** in the browser, backed by FastAPI and PostgreSQL.
+**SignTurk** — Turkish Sign Language (TİD) **recognition**, **animation**, and **text-to-speech** in the browser, backed by FastAPI and PostgreSQL.
 
 <p align="center">
   <img src="screenshots/animation.png" alt="Animation" width="100%"/>
@@ -24,7 +24,7 @@
 
 ## Overview
 
-Signatürk consists of three complementary systems for Turkish Sign Language (TİD):
+SignTurk consists of three complementary systems for Turkish Sign Language (TİD):
 
 - **Recognition** — Webcam input → real-time sign word prediction using a BiLSTM model
 - **Animation** — Text input → 3D stick figure performs the corresponding sign(s)
@@ -78,6 +78,8 @@ Type any word or sentence — the stick figure performs each sign sequentially w
 | Top-1 Accuracy | 76.14% | **85.65%** | +9.51% |
 | Top-3 Accuracy | 89.28% | **93.96%** | +4.68% |
 | Top-5 Accuracy | 91.88% | **95.59%** | +3.71% |
+
+The **179-class BiLSTM with temporal attention (85.65% Top-1)** is the selected product model because its 16-frame, 156-feature input contract fits the existing MediaPipe/WebSocket pipeline. A separate **226-class RTMW ensemble reached 94.09% Top-1 in offline evaluation**, but it was not integrated into the live runtime because it required a different landmark extractor and a multi-stream inference contract.
 
 Evaluated on a **cross-subject** validation split — training and validation sets contain entirely different signers (31 train / 6 val), reflecting real-world generalization performance.
 
@@ -232,7 +234,7 @@ Text Input
 
 ```
 ├── backend.py                    # FastAPI — WebSocket, ML inference, landmark API, TTS, DB logging
-├── index.html                    # Frontend — Signatürk UI, splash, recognition + 3D animation
+├── index.html                    # Frontend — SignTurk UI, splash, recognition + 3D animation
 ├── a.gif                         # Splash animation (optional; served as /static/a.gif)
 ├── extract_landmarks.py          # Extracts MediaPipe landmarks from AUTSL videos
 ├── model_assets/
