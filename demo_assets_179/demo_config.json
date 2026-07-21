@@ -1,0 +1,11 @@
+{
+  "seq_len": 16,
+  "feat_dim": 156,
+  "num_classes": 179,
+  "preprocessing": "color_only + relative_coords + finger_angles + zscore",
+  "model_file": "model.keras",
+  "norm_stats_file": "norm_stats.json",
+  "label_map_file": "label_map.json",
+  "confidence_threshold": 0.4,
+  "top_k_display": 3
+}

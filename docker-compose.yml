@@ -1,7 +1,5 @@
-version: "3.9"
-
 services:
-  tsl-demo:
+  sign-turk:
     build: .
     ports:
       - "8000:8000"
@@ -10,4 +8,7 @@ services:
       - ./dataset/landmarks:/app/dataset/landmarks
     environment:
       - TF_CPP_MIN_LOG_LEVEL=3
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped

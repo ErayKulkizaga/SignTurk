@@ -25,14 +25,14 @@ Open an issue with the `enhancement` label and describe:
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature/your-feature-name`
 3. Make your changes
-4. Test that the demo still works: `python backend.py`
+4. Run the lightweight checks: `python -m unittest discover -s tests -v`
 5. Commit with a clear message: `git commit -m "add: your feature description"`
 6. Push and open a Pull Request against `main`
 
 ## Areas Where Help Is Welcome
 
 - Improving animation accuracy (better coordinate mapping)
-- Adding more sign language words beyond the current 184
+- Improving recognition across signer, lighting, and background variation
 - Mobile/responsive UI improvements
 - Model performance improvements (new architectures, more data)
 - Multilingual support (other sign languages)
@@ -40,7 +40,7 @@ Open an issue with the `enhancement` label and describe:
 ## Code Style
 
 - Python: follow PEP8, use descriptive variable names
-- JavaScript: vanilla JS preferred, avoid adding new dependencies
+- JavaScript: keep the browser UI dependency-light and accessible
 - Keep functions small and focused
 
 ## Questions

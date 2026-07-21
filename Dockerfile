@@ -1,23 +1,29 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Sistem bağımlılıkları
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
+    libxrender1 \
     libxext6 \
-    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Python bağımlılıkları
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Uygulama dosyaları
-COPY . .
+COPY backend.py .
+COPY database.py .
+COPY models.py .
+COPY landmark_smoother.py .
+COPY text_processing_routes.py .
+COPY text_processing/ text_processing/
+COPY frontend/ frontend/
+COPY demo_assets_179/ demo_assets_179/
+COPY model_assets/ model_assets/
+COPY dataset/landmarks/ dataset/landmarks/
 
 EXPOSE 8000
 
-CMD ["python", "backend.py"]
+CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]

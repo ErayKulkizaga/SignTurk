@@ -1,7 +1,40 @@
-fastapi==0.111.0
-uvicorn==0.30.0
-tensorflow==2.16.1
+# ── Core Framework ───────────────────────────────────────
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+python-multipart==0.0.20
+websockets==15.0.1
+
+# ── ML / CV ───────────────────────────────────────────────
+tensorflow==2.18.0
 mediapipe==0.10.21
-numpy==1.26.4
-opencv-python-headless==4.9.0.80
+numpy<2.0
+opencv-python-headless==4.11.0.86
+
+# ── Database ──────────────────────────────────────────────
+sqlalchemy==2.0.40
+psycopg[binary]==3.2.9
+
+# ── Auth / Validation ─────────────────────────────────────
+passlib==1.7.4
+pydantic[email]==2.11.1
+
+# ── Config / Secrets ──────────────────────────────────────
+# Loads HF_TOKEN (and any other secrets) from a local .env file so they
+# don't have to be exported every session. The .env file is gitignored.
+python-dotenv==1.0.1
+
+# ── Data ──────────────────────────────────────────────────
 pandas==2.2.2
+
+# ── Text processing (sentence engine + rule-based grammar) ─
+# The default live path is deterministic. Audio is requested explicitly
+# through /api/text/* and requires network access when gTTS is selected.
+gTTS==2.5.4
+#
+# Optional ML/LLM grammar (off by default):
+# transformers==4.46.3
+# torch==2.5.1
+# sentencepiece==0.2.0
+# accelerate==1.1.1
+# protobuf>=4.25.3,<5
+# huggingface_hub>=0.27.0

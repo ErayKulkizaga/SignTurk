@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lightweight-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Rule-based evaluation gate
+        run: python -m text_processing.eval --check --min-exact 0.98
+      - name: Syntax check
+        run: python -m compileall backend.py database.py models.py text_processing

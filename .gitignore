@@ -216,3 +216,11 @@ __pycache__/
 *.task
 hand_landmarker.task
 pose_landmarker.task
+
+# SignTurk runtime state
+local_dev.db
+local_dev.db-*
+uploads/
+static/
+*.log
+tmp/

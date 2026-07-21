@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Animasyon</title>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1675471629/holistic.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/frontend/avatar_solver.js"></script>
+<script src="/frontend/motion_preprocess.js"></script>
+<style>
+/* ── SignTurk design tokens ── */
+:root{
+  --bg:#f5f0eb;
+  --surface:#ffffff;
+  --surface2:#f8f6f3;
+  --border:#e8e2da;
+  --accent:#c9a96e;
+  --text:#1a1714;
+  --muted:#8c7b6b;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;overflow:hidden;}
+
+/* Ana layout */
+.layout{display:block;width:100%;height:100vh;}
+
+/* Sol: 3D viewport */
+.viewport-wrap{position:relative;background:#0a0a0f;overflow:hidden;width:100%;height:100vh;}
+#animCanvas{width:100%;height:100%;display:block;}
+.loading-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a0f;color:#888;gap:14px;font-size:0.88rem;z-index:10;}
+.spinner{width:36px;height:36px;border:3px solid #222;border-top-color:var(--accent,#c9a96e);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Viewport bilgi rozeti */
+.vp-badge{position:absolute;top:14px;left:14px;display:flex;gap:8px;z-index:5;}
+.badge{padding:4px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;letter-spacing:0.04em;backdrop-filter:blur(8px);}
+.badge-mode{background:rgba(201,169,110,0.18);color:#c9a96e;border:1px solid rgba(201,169,110,0.35);}
+.badge-status{background:rgba(0,0,0,0.45);color:#aaa;}
+.badge-status.playing{color:#22c55e;}
+
+/* Sağ panel */
+.side-panel{display:none;}
+
+.panel-head{padding:18px 18px 14px;border-bottom:1px solid var(--border);}
+.panel-head h3{font-size:0.95rem;font-weight:700;letter-spacing:-0.01em;color:var(--text);margin-bottom:2px;}
+.panel-head p{font-size:0.75rem;color:var(--muted);}
+
+.panel-body{padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;}
+
+/* Arama */
+.search-wrap{position:relative;}
+.search-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+.suggestions{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;max-height:180px;overflow-y:auto;z-index:100;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.suggestion-item{padding:9px 14px;cursor:pointer;font-size:0.85rem;color:var(--text);transition:background 0.1s;}
+.suggestion-item:hover{background:var(--surface2);}
+
+/* Oynat butonu */
+.play-btn{width:100%;padding:11px;border:none;border-radius:8px;background:var(--accent,#c9a96e);color:#fff;font-size:0.88rem;font-weight:600;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.01em;}
+.play-btn:hover{opacity:0.85;}
+.play-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* Durum */
+.anim-status{padding:9px 12px;background:var(--surface2);border-radius:8px;font-size:0.78rem;color:var(--muted);border:1px solid var(--border);}
+.anim-status.playing{color:var(--success);}
+.anim-status.error{color:var(--danger);}
+
+/* Playback bar */
+.playback-bar{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
+.pb-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:4px;transition:color 0.15s;}
+.pb-btn:hover{color:var(--text);}
+.pb-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.pb-fill{height:100%;background:var(--accent,#c9a96e);width:0%;transition:width 0.05s linear;}
+.pb-counter{font-size:0.68rem;color:var(--muted);white-space:nowrap;}
+
+/* Kelime listesi */
+.word-list-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0 2px;}
+.word-count{font-size:0.68rem;color:var(--muted);font-weight:400;margin-left:6px;text-transform:none;letter-spacing:0;}
+.word-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;max-height:260px;overflow-y:auto;padding-right:2px;}
+.word-chip{padding:7px 8px;background:var(--surface2);border-radius:6px;font-size:0.76rem;text-align:center;cursor:pointer;border:1px solid transparent;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.word-chip:hover{border-color:var(--accent);color:var(--accent);}
+.word-chip.active{border-color:var(--accent);background:rgba(201,169,110,0.12);color:var(--accent);font-weight:600;}
+
+/* WebSocket bağlantı */
+.conn-row{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--muted);}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.conn-dot.ok{background:var(--success);}
+.conn-dot.err{background:var(--danger);}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sol: 3D Viewport -->
+  <div class="viewport-wrap">
+    <canvas id="animCanvas"></canvas>
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <span id="loadingText">Avatar yükleniyor...</span>
+    </div>
+    <div class="vp-badge">
+      <span class="badge badge-mode">3D Avatar</span>
+      <span class="badge badge-status" id="vpStatus">Hazırlanıyor</span>
+    </div>
+  </div>
+
+  <!-- Sağ: Kontrol paneli -->
+  <div class="side-panel">
+    <div class="panel-head">
+      <h3>İşaret Animasyonu</h3>
+      <p>Kelime seçin veya yazın</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Bağlantı durumu -->
+      <div class="conn-row">
+        <span class="conn-dot" id="connDot"></span>
+        <span id="connStatus">Bağlanıyor...</span>
+      </div>
+
+      <!-- Arama -->
+      <div class="search-wrap">
+        <input class="search-input" id="wordInput" type="text"
+          placeholder="İşaret ara veya yaz..."
+          autocomplete="off"
+          oninput="onSearchInput()"
+          onkeydown="onSearchKey(event)">
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+
+      <button class="play-btn" id="playBtn" onclick="playCurrentInput()" disabled>Animasyonu Oynat</button>
+
+      <div class="anim-status" id="animStatus">Avatar yükleniyor...</div>
+
+      <!-- Playback -->
+      <div class="playback-bar">
+        <button class="pb-btn" onclick="togglePlay()" id="playPauseBtn">⏸</button>
+        <button class="pb-btn" onclick="restartAnim()">⏮</button>
+        <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+        <span class="pb-counter" id="frameCounter">0/0</span>
+      </div>
+
+      <!-- Kelime listesi -->
+      <div class="word-list-label">
+        Tüm İşaretler
+        <span class="word-count" id="wordCount"></span>
+      </div>
+      <div class="word-grid" id="wordGrid">
+        <div style="color:var(--muted);font-size:0.8rem;grid-column:1/-1;padding:8px 0;">Yükleniyor...</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+var STATE = {
+  ws: null, connected: false,
+  lastAutoPlayedWord: '', lastAutoPlayedAt: 0, autoPlayCooldownMs: 2500,
+  autoPlayMinConfidence: 0.55,
+};
+
+var ANIM = {
+  initialized: false, renderer: null, scene: null, camera: null, clock: null, controls: null,
+  playing: true, wordList: [],
+  queue: [], queueIdx: 0, frameIdx: 0, frameTimer: 0,
+  FPS: 20, TRANSITION_FRAMES: 6,
+  bones: {}, joints: {},
+  avatar: null, avatarBones: {}, avatarLoaded: false, avatarLoading: false,
+};
+
+var REST_WORLD_DIR = {}, REST_WORLD_QUAT = {}, REST_LOCAL_QUAT = {};
+var RESOLVED_BONE_MAP = {}, RESOLVED_FINGER_MAP = { Left:{}, Right:{} };
+var PREV_AVATAR_FRAME = null;
+
+var BONE_MAP = {
+  Hips:['mixamorig:Hips','mixamorigHips'],
+  Spine:['mixamorig:Spine','mixamorigSpine'],
+  Spine1:['mixamorig:Spine1','mixamorigSpine1'],
+  Spine2:['mixamorig:Spine2','mixamorigSpine2'],
+  Neck:['mixamorig:Neck','mixamorigNeck'],
+  Head:['mixamorig:Head','mixamorigHead'],
+  LShoulder:['mixamorig:LeftShoulder','mixamorigLeftShoulder'],
+  LUpperArm:['mixamorig:LeftArm','mixamorigLeftArm'],
+  LForeArm:['mixamorig:LeftForeArm','mixamorigLeftForeArm'],
+  LHand:['mixamorig:LeftHand','mixamorigLeftHand'],
+  RShoulder:['mixamorig:RightShoulder','mixamorigRightShoulder'],
+  RUpperArm:['mixamorig:RightArm','mixamorigRightArm'],
+  RForeArm:['mixamorig:RightForeArm','mixamorigRightForeArm'],
+  RHand:['mixamorig:RightHand','mixamorigRightHand'],
+};
+
+var FINGER_MAP = {
+  Left:{
+    Thumb:[['mixamorig:LeftHandThumb1','mixamorigLeftHandThumb1'],['mixamorig:LeftHandThumb2','mixamorigLeftHandThumb2'],['mixamorig:LeftHandThumb3','mixamorigLeftHandThumb3']],
+    Index:[['mixamorig:LeftHandIndex1','mixamorigLeftHandIndex1'],['mixamorig:LeftHandIndex2','mixamorigLeftHandIndex2'],['mixamorig:LeftHandIndex3','mixamorigLeftHandIndex3']],
+    Middle:[['mixamorig:LeftHandMiddle1','mixamorigLeftHandMiddle1'],['mixamorig:LeftHandMiddle2','mixamorigLeftHandMiddle2'],['mixamorig:LeftHandMiddle3','mixamorigLeftHandMiddle3']],
+    Ring:[['mixamorig:LeftHandRing1','mixamorigLeftHandRing1'],['mixamorig:LeftHandRing2','mixamorigLeftHandRing2'],['mixamorig:LeftHandRing3','mixamorigLeftHandRing3']],
+    Pinky:[['mixamorig:LeftHandPinky1','mixamorigLeftHandPinky1'],['mixamorig:LeftHandPinky2','mixamorigLeftHandPinky2'],['mixamorig:LeftHandPinky3','mixamorigLeftHandPinky3']],
+  },
+  Right:{
+    Thumb:[['mixamorig:RightHandThumb1','mixamorigRightHandThumb1'],['mixamorig:RightHandThumb2','mixamorigRightHandThumb2'],['mixamorig:RightHandThumb3','mixamorigRightHandThumb3']],
+    Index:[['mixamorig:RightHandIndex1','mixamorigRightHandIndex1'],['mixamorig:RightHandIndex2','mixamorigRightHandIndex2'],['mixamorig:RightHandIndex3','mixamorigRightHandIndex3']],
+    Middle:[['mixamorig:RightHandMiddle1','mixamorigRightHandMiddle1'],['mixamorig:RightHandMiddle2','mixamorigRightHandMiddle2'],['mixamorig:RightHandMiddle3','mixamorigRightHandMiddle3']],
+    Ring:[['mixamorig:RightHandRing1','mixamorigRightHandRing1'],['mixamorig:RightHandRing2','mixamorigRightHandRing2'],['mixamorig:RightHandRing3','mixamorigRightHandRing3']],
+    Pinky:[['mixamorig:RightHandPinky1','mixamorigRightHandPinky1'],['mixamorig:RightHandPinky2','mixamorigRightHandPinky2'],['mixamorig:RightHandPinky3','mixamorigRightHandPinky3']],
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   WebSocket
+═══════════════════════════════════════════════ */
+function connectWS() {
+  STATE.ws = new WebSocket('ws://'+window.location.host+'/ws');
+  STATE.ws.onopen = function(){ STATE.connected=true; document.getElementById('connDot').className='conn-dot ok'; document.getElementById('connStatus').textContent='Bağlı'; };
+  STATE.ws.onclose = function(){ STATE.connected=false; document.getElementById('connDot').className='conn-dot err'; document.getElementById('connStatus').textContent='Bağlantı kesildi...'; setTimeout(connectWS,2000); };
+  STATE.ws.onerror = function(e){ console.error('[WS]',e); };
+  STATE.ws.onmessage = function(evt){ handleServerMessage(JSON.parse(evt.data)); };
+}
+function sendToServer(obj){ if(STATE.connected&&STATE.ws&&STATE.ws.readyState===WebSocket.OPEN) STATE.ws.send(JSON.stringify(obj)); }
+
+function handleServerMessage(msg) {
+  if(msg.type==='prediction') autoPlayPrediction(msg.top_k && msg.top_k[0], msg.status==='low_confidence');
+}
+
+function normalizeWord(word){
+  if(!word) return '';
+  return String(word).trim().toLowerCase()
+    .replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ı/g,'i')
+    .replace(/ö/g,'o').replace(/ş/g,'s').replace(/ü/g,'u')
+    .replace(/\s+/g,'_');
+}
+
+async function autoPlayPrediction(top1, isLow) {
+  if(!top1||isLow) return;
+  var candidate = normalizeWord(top1.TR) || normalizeWord(top1.EN);
+  if(!candidate) return;
+  var now = Date.now();
+  if(STATE.lastAutoPlayedWord===candidate && (now-STATE.lastAutoPlayedAt)<STATE.autoPlayCooldownMs) return;
+  if((top1.confidence||0) < STATE.autoPlayMinConfidence) return;
+  if(ANIM.wordList.length && ANIM.wordList.indexOf(candidate)===-1) return;
+  STATE.lastAutoPlayedWord=candidate; STATE.lastAutoPlayedAt=now;
+  document.getElementById('wordInput').value=candidate;
+  playSentence(candidate);
+}
+
+/* ═══════════════════════════════════════════════
+   THREE.JS INIT
+═══════════════════════════════════════════════ */
+function initAnim() {
+  if(ANIM.initialized) return;
+  ANIM.initialized = true;
+  var c = document.getElementById('animCanvas');
+  var w = c.clientWidth||800, h = c.clientHeight||600;
+  ANIM.renderer = new THREE.WebGLRenderer({canvas:c, antialias:true, alpha:false});
+  ANIM.renderer.setSize(w,h,false);
+  ANIM.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  ANIM.renderer.shadowMap.enabled = true;
+  ANIM.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  ANIM.renderer.toneMappingExposure = 1.1;
+  ANIM.renderer.localClippingEnabled = false;
+  ANIM.scene = new THREE.Scene();
+  ANIM.scene.background = new THREE.Color(0x0d0d12);
+
+  // Işıklar
+  ANIM.scene.add(new THREE.AmbientLight(0xfff8f0, 0.9));
+  var key = new THREE.DirectionalLight(0xfff5e0,1.1); key.position.set(1.5,3,2); key.castShadow=true; ANIM.scene.add(key);
+  var fill = new THREE.DirectionalLight(0xc0d8ff,0.35); fill.position.set(-2,1.5,-1); ANIM.scene.add(fill);
+  var rim = new THREE.DirectionalLight(0xffe0a0,0.2); rim.position.set(0,-1,3); ANIM.scene.add(rim);
+
+  // Zemin çizgisi
+  var grid = new THREE.GridHelper(3,12,0x222222,0x1a1a1a); grid.position.y=-1.05; ANIM.scene.add(grid);
+
+  // Kamera — bel üstü odak
+  ANIM.camera = new THREE.PerspectiveCamera(58, w/h, 0.01, 50);
+  ANIM.camera.position.set(0, 0.5, 3.2);
+  ANIM.camera.lookAt(0, 0.7, 0);
+
+  ANIM.controls = new THREE.OrbitControls(ANIM.camera, c);
+  ANIM.controls.enableDamping = true;
+  ANIM.controls.dampingFactor = 0.08;
+  ANIM.controls.minDistance = 0.8;
+  ANIM.controls.maxDistance = 4;
+  ANIM.controls.target.set(0, 0.3, 0);
+
+  ANIM.clock = new THREE.Clock();
+
+  window.addEventListener('resize', function(){
+    var c2=document.getElementById('animCanvas');
+    ANIM.camera.aspect=c2.clientWidth/c2.clientHeight;
+    ANIM.camera.updateProjectionMatrix();
+    ANIM.renderer.setSize(c2.clientWidth,c2.clientHeight,false);
+  });
+
+  // İşaret listesini yükle
+  fetch('/signs').then(function(r){return r.json();}).then(function(data){
+    ANIM.wordList = data.words||[];
+    buildWordGrid(ANIM.wordList);
+    document.getElementById('wordCount').textContent = ANIM.wordList.length + ' işaret';
+    document.getElementById('playBtn').disabled = false;
+    setAnimStatus('Avatar hazır — kelime seçin','');
+  });
+
+  animLoop();
+}
+
+/* ═══════════════════════════════════════════════
+   AVATAR LOADING — avatar.glb otomatik yüklenir
+═══════════════════════════════════════════════ */
+function loadAvatar(url, isObjectURL) {
+  ANIM.avatarLoading = true;
+  setLoading('Avatar yükleniyor...');
+  var loader = new THREE.GLTFLoader();
+  loader.load(url, function(gltf){
+    if(ANIM.avatar) ANIM.scene.remove(ANIM.avatar);
+    ANIM.avatar = gltf.scene;
+    ANIM.avatarBones = {};
+    ANIM.avatar.traverse(function(obj){
+      if(obj.isBone||obj.type==='Bone') ANIM.avatarBones[obj.name]=obj;
+      if(obj.isMesh){
+        obj.castShadow=true; obj.receiveShadow=true;
+        // Belden aşağısını mesh adına göre gizle (geniş kapsam)
+        var n=obj.name.toLowerCase();
+        if(n.includes('leg')||n.includes('foot')||n.includes('knee')||
+           n.includes('pelvis')||n.includes('thigh')||n.includes('calf')||
+           n.includes('toe')||n.includes('shin')||n.includes('lowerbody')||
+           n.includes('pants')||n.includes('shoe')||n.includes('boot')||
+           n.includes('trouser')||n.includes('hip')){
+          obj.visible=false;
+        }
+      }
+    });
+    ANIM.scene.add(ANIM.avatar);
+    requestAnimationFrame(function(){
+      ANIM.avatar.updateMatrixWorld(true);
+      ANIM.renderer.render(ANIM.scene, ANIM.camera);
+      resolveRigMaps();
+      measureRestPose();
+      ANIM.avatarLoaded=true; ANIM.avatarLoading=false;
+      if(isObjectURL) URL.revokeObjectURL(url);
+      hideLoading();
+      document.getElementById('vpStatus').textContent='Hazır';
+      document.getElementById('vpStatus').classList.add('playing');
+      setAnimStatus('Avatar hazır — kelime seçin','');
+      console.log('[Avatar] Kemikler:', Object.keys(ANIM.avatarBones).length);
+      // Bone bazlı belden aşağısını gizle
+      hideLowerBody();
+    });
+  }, function(xhr){
+    if(xhr.total>0) setLoading('Yükleniyor... %'+Math.round(xhr.loaded/xhr.total*100));
+  }, function(err){
+    ANIM.avatarLoading=false;
+    console.error('[Avatar] Yüklenemedi:', err);
+    setLoading('Avatar yüklenemedi');
+    setAnimStatus('Avatar yüklenemedi — stick figure kullanılıyor','error');
+    setTimeout(hideLoading, 1500);
+  });
+}
+
+function setLoading(txt){ document.getElementById('loadingText').textContent=txt; }
+function hideLoading(){ document.getElementById('loadingOverlay').style.display='none'; }
+
+/* ═══════════════════════════════════════════════
+   LOWER BODY HIDE — kemik bazlı
+═══════════════════════════════════════════════ */
+// Belden aşağısı kemik adlarının bir kısmını içeren bone listesi
+var LOWER_BODY_BONES = [
+  'hips','pelvis','spine','upleg','leg','knee','foot','toe',
+  'leftupleg','rightupleg','leftleg','rightleg',
+  'leftfoot','rightfoot','lefttoebase','righttoebase',
+  'mixamorig:hips','mixamorig:leftupleg','mixamorig:rightupleg',
+  'mixamorig:leftleg','mixamorig:rightleg',
+  'mixamorig:leftfoot','mixamorig:rightfoot',
+  'mixamorig:lefttoebase','mixamorig:righttoebase',
+];
+
+function hideLowerBody() {
+  if (!ANIM.avatar) return;
+  // Hangi bone'ların altındaki mesh'leri gizleyeceğimizi bul
+  var lowerBoneNames = ['hips','pelvis','leftupleg','rightupleg','leftleg','rightleg',
+    'leftfoot','rightfoot','lefttoebase','righttoebase',
+    'mixamorig:hips','mixamorig:leftupleg','mixamorig:rightupleg',
+    'mixamorig:leftleg','mixamorig:rightleg',
+    'mixamorig:leftfoot','mixamorig:rightfoot'];
+
+  // Normalize isim karşılaştırma
+  function matchesLower(name) {
+    var n = name.toLowerCase().replace(/[^a-z]/g,'');
+    var checks = ['hip','pelvis','upleg','thigh','leg','knee','foot','toe','shin','calf','boot','shoe','pant','trouser'];
+    return checks.some(function(k){ return n.includes(k); });
+  }
+
+  // Her mesh için kontrol: ebeveyn kemik zincirinde lower body var mı?
+  ANIM.avatar.traverse(function(obj) {
+    if (!obj.isMesh) return;
+    // Mesh adı kontrolü
+    if (matchesLower(obj.name)) { obj.visible = false; return; }
+    // Ebeveyn zinciri kontrolü
+    var parent = obj.parent;
+    while (parent) {
+      if ((parent.isBone || parent.type === 'Bone') && matchesLower(parent.name)) {
+        obj.visible = false;
+        return;
+      }
+      parent = parent.parent;
+    }
+  });
+  console.log('[Avatar] Belden aşağısı gizlendi');
+}
+
+/* ═══════════════════════════════════════════════
+   RIG MAPPING
+═══════════════════════════════════════════════ */
+function normBone(n){ return String(n||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function resolveBoneName(candidates){
+  if(!Array.isArray(candidates)) candidates=[candidates];
+  for(var i=0;i<candidates.length;i++) if(ANIM.avatarBones[candidates[i]]) return candidates[i];
+  var norm={}; Object.keys(ANIM.avatarBones).forEach(function(n){ norm[normBone(n)]=n; });
+  for(var j=0;j<candidates.length;j++){ var h=norm[normBone(candidates[j])]; if(h) return h; }
+  return null;
+}
+function resolveRigMaps(){
+  RESOLVED_BONE_MAP={};
+  RESOLVED_FINGER_MAP={Left:{},Right:{}};
+  Object.keys(BONE_MAP).forEach(function(k){ RESOLVED_BONE_MAP[k]=resolveBoneName(BONE_MAP[k]); });
+  ['Left','Right'].forEach(function(s){
+    Object.keys(FINGER_MAP[s]).forEach(function(f){
+      RESOLVED_FINGER_MAP[s][f]=FINGER_MAP[s][f].map(function(c){ return resolveBoneName(c); });
+    });
+  });
+}
+function measureRestPose(){
+  REST_WORLD_DIR={}; REST_WORLD_QUAT={}; REST_LOCAL_QUAT={};
+  if(!ANIM.avatar) return;
+  ANIM.avatar.updateMatrixWorld(true);
+  function reg(bn){
+    if(!bn) return;
+    var bone=ANIM.avatarBones[bn]; if(!bone) return;
+    REST_LOCAL_QUAT[bn]=bone.quaternion.clone();
+    var wq=new THREE.Quaternion(); bone.getWorldQuaternion(wq); REST_WORLD_QUAT[bn]=wq.clone();
+    var bwp=new THREE.Vector3(); bone.getWorldPosition(bwp);
+    var best=null, bestLen=0;
+    bone.children.forEach(function(ch){
+      if(!ch.isBone&&ch.type!=='Bone') return;
+      var cp=new THREE.Vector3(); ch.getWorldPosition(cp);
+      var l=cp.distanceTo(bwp); if(l>bestLen){bestLen=l;best=cp;}
+    });
+    var wd=best&&bestLen>1e-4
+      ?new THREE.Vector3().subVectors(best,bwp).normalize()
+      :new THREE.Vector3(0,1,0).applyQuaternion(wq).normalize();
+    REST_WORLD_DIR[bn]=wd;
+  }
+  Object.keys(RESOLVED_BONE_MAP).forEach(function(k){ reg(RESOLVED_BONE_MAP[k]); });
+  ['Left','Right'].forEach(function(s){ Object.keys(RESOLVED_FINGER_MAP[s]).forEach(function(f){ RESOLVED_FINGER_MAP[s][f].forEach(reg); }); });
+}
+
+/* ═══════════════════════════════════════════════
+   RETARGETING
+═══════════════════════════════════════════════ */
+function lmVec(pose,idx){ var p=pose[String(idx)]; if(!p) return null; return new THREE.Vector3((p[0]-0.5),-(p[1]-0.5),-p[2]); }
+function handOffsetVec(hand,idx){ if(!hand||!hand[idx]||!hand[0]) return null; var p=hand[idx],w=hand[0]; return new THREE.Vector3(p[0]-w[0],-(p[1]-w[1]),-(p[2]-w[2])); }
+function resetBone(bn){ var b=ANIM.avatarBones[bn]; if(b&&REST_LOCAL_QUAT[bn]) b.quaternion.copy(REST_LOCAL_QUAT[bn]); }
+function resetDrivenBones(){
+  Object.keys(RESOLVED_BONE_MAP).forEach(function(k){ if(RESOLVED_BONE_MAP[k]) resetBone(RESOLVED_BONE_MAP[k]); });
+  ['Left','Right'].forEach(function(s){ Object.keys(RESOLVED_FINGER_MAP[s]).forEach(function(f){ RESOLVED_FINGER_MAP[s][f].forEach(function(n){ if(n) resetBone(n); }); }); });
+}
+function rotateBoneToWorldDir(bn,targetWD,lerp){
+  if(!bn) return; var bone=ANIM.avatarBones[bn]; if(!bone) return;
+  var rwd=REST_WORLD_DIR[bn],rwq=REST_WORLD_QUAT[bn]; if(!rwd||!rwq) return;
+  if(!targetWD||targetWD.lengthSq()<1e-6) return;
+  var twd=targetWD.clone().normalize(), rwd2=rwd.clone().normalize();
+  var delta=new THREE.Quaternion().setFromUnitVectors(rwd2,twd);
+  var twq=delta.clone().multiply(rwq);
+  var pwq=new THREE.Quaternion(); if(bone.parent) bone.parent.getWorldQuaternion(pwq);
+  var tlq=pwq.clone().invert().multiply(twq);
+  bone.quaternion.slerp(tlq,lerp!=null?lerp:0.6);
+}
+function aimBone(bn,from,to,lerp){ if(!bn||!from||!to) return; var d=new THREE.Vector3().subVectors(to,from); if(d.lengthSq()<1e-6) return; rotateBoneToWorldDir(bn,d,lerp); }
+
+function applyWristRotation(hand,wristPt,bn,side){
+  if(!hand||!wristPt||!bn) return;
+  var sc=0.3;
+  function hw(i){ var v=handOffsetVec(hand,i); return v?wristPt.clone().add(v.multiplyScalar(sc)):null; }
+  var w=hw(0),m=hw(9),idx=hw(5),pk=hw(17); if(!w||!m||!idx||!pk) return;
+  var fwd=new THREE.Vector3().subVectors(m,w).normalize();
+  var lat=side==='Left'?new THREE.Vector3().subVectors(idx,pk).normalize():new THREE.Vector3().subVectors(pk,idx).normalize();
+  var up=new THREE.Vector3().crossVectors(fwd,lat).normalize(); if(up.lengthSq()<1e-6) return;
+  rotateBoneToWorldDir(bn,fwd.clone().addScaledVector(up,0.2).normalize(),0.88);
+}
+
+function applyForearmTwist(hand,elbowPt,wristPt,fn,side){
+  if(!hand||!elbowPt||!wristPt||!fn) return;
+  var bone=ANIM.avatarBones[fn]; if(!bone) return;
+  var rwd=REST_WORLD_DIR[fn],rwq=REST_WORLD_QUAT[fn]; if(!rwd||!rwq) return;
+  var sc=0.3;
+  function hw(i){ var v=handOffsetVec(hand,i); return v?wristPt.clone().add(v.multiplyScalar(sc)):null; }
+  var w=hw(0),idx=hw(5),pk=hw(17); if(!w||!idx||!pk) return;
+  var foreDir=new THREE.Vector3().subVectors(wristPt,elbowPt); if(foreDir.lengthSq()<1e-6) return; foreDir.normalize();
+  var ti=new THREE.Vector3().subVectors(idx,w).normalize(),tp=new THREE.Vector3().subVectors(pk,w).normalize();
+  var pn=new THREE.Vector3().crossVectors(ti,tp).normalize();
+  if(side==='Right') pn.negate();
+  var tc=pn.clone().addScaledVector(foreDir,-pn.dot(foreDir)).normalize();
+  if(tc.lengthSq()<1e-6) return;
+  var td=foreDir.clone().addScaledVector(tc,0.35).normalize();
+  var tq=new THREE.Quaternion().setFromUnitVectors(foreDir,td);
+  var cwq=new THREE.Quaternion(); bone.getWorldQuaternion(cwq);
+  var twq=tq.multiply(cwq);
+  var pwq=new THREE.Quaternion(); if(bone.parent) bone.parent.getWorldQuaternion(pwq);
+  bone.quaternion.slerp(pwq.clone().invert().multiply(twq),0.40);
+}
+
+function applyFingerRetarget(hand,wristPt,side){
+  if(!hand||!wristPt) return;
+  var sc=0.3;
+  function hw(i){ var v=handOffsetVec(hand,i); return v?wristPt.clone().add(v.multiplyScalar(sc)):null; }
+  var fingers={Thumb:[1,2,3,4],Index:[5,6,7,8],Middle:[9,10,11,12],Ring:[13,14,15,16],Pinky:[17,18,19,20]};
+  Object.keys(fingers).forEach(function(f){
+    var idx=fingers[f], bones=RESOLVED_FINGER_MAP[side][f]||[];
+    for(var s=0;s<3;s++){
+      if(!bones[s]) continue;
+      var a=hw(idx[s]),b=hw(idx[s+1]); if(!a||!b) continue;
+      aimBone(bones[s],a,b,f==='Thumb'?0.65:0.72);
+    }
+  });
+}
+
+function computeVelocity(fd,prev){
+  if(!prev) return 0;
+  var total=0,count=0;
+  ['11','12','13','14','15','16'].forEach(function(k){
+    var a=(fd.pose||{})[k],b=(prev.pose||{})[k];
+    if(a&&b){ var dx=a[0]-b[0],dy=a[1]-b[1],dz=a[2]-b[2]; total+=Math.sqrt(dx*dx+dy*dy+dz*dz); count++; }
+  });
+  return count>0?total/count:0;
+}
+
+function applyAvatarFrame(fd){
+  if(!ANIM.avatarLoaded||!ANIM.avatar) return;
+  if(Object.keys(REST_WORLD_DIR).length===0) return;
+  var pose=fd.pose||{}, lh=fd.left_hand, rh=fd.right_hand;
+  var lS=lmVec(pose,11),rS=lmVec(pose,12),lE=lmVec(pose,13),rE=lmVec(pose,14);
+  var lW=lmVec(pose,15),rW=lmVec(pose,16),lH=lmVec(pose,23),rH=lmVec(pose,24);
+  var nose=lmVec(pose,0);
+  if(!lS||!rS||!lH||!rH) return;
+  var vel=computeVelocity(fd,PREV_AVATAR_FRAME);
+  var vb=Math.min(vel*5,0.3);
+  resetDrivenBones();
+  ANIM.avatar.updateMatrixWorld(true);
+  var sm=new THREE.Vector3().addVectors(lS,rS).multiplyScalar(0.5);
+  var hm=new THREE.Vector3().addVectors(lH,rH).multiplyScalar(0.5);
+  var su=new THREE.Vector3().subVectors(sm,hm).normalize();
+  var sr=new THREE.Vector3().subVectors(rS,lS).normalize();
+  rotateBoneToWorldDir(RESOLVED_BONE_MAP.Hips,su,0.05);
+  rotateBoneToWorldDir(RESOLVED_BONE_MAP.Spine,su,0.10);
+  rotateBoneToWorldDir(RESOLVED_BONE_MAP.Spine1,su,0.20+vb*0.3);
+  rotateBoneToWorldDir(RESOLVED_BONE_MAP.Spine2,su,0.30+vb*0.5);
+  if(nose){ var nd=new THREE.Vector3().subVectors(nose,sm).normalize(); rotateBoneToWorldDir(RESOLVED_BONE_MAP.Neck,nd,0.40); rotateBoneToWorldDir(RESOLVED_BONE_MAP.Head,nd,0.35); }
+  if(lE) aimBone(RESOLVED_BONE_MAP.LShoulder,lS,lE,0.45);
+  if(rE) aimBone(RESOLVED_BONE_MAP.RShoulder,rS,rE,0.45);
+  if(lS&&lE) aimBone(RESOLVED_BONE_MAP.LUpperArm,lS,lE,0.72);
+  if(rS&&rE) aimBone(RESOLVED_BONE_MAP.RUpperArm,rS,rE,0.72);
+  if(lE&&lW) aimBone(RESOLVED_BONE_MAP.LForeArm,lE,lW,0.75);
+  if(rE&&rW) aimBone(RESOLVED_BONE_MAP.RForeArm,rE,rW,0.75);
+  if(lh&&lW){ if(lE) applyForearmTwist(lh,lE,lW,RESOLVED_BONE_MAP.LForeArm,'Left'); applyWristRotation(lh,lW,RESOLVED_BONE_MAP.LHand,'Left'); applyFingerRetarget(lh,lW,'Left'); }
+  if(rh&&rW){ if(rE) applyForearmTwist(rh,rE,rW,RESOLVED_BONE_MAP.RForeArm,'Right'); applyWristRotation(rh,rW,RESOLVED_BONE_MAP.RHand,'Right'); applyFingerRetarget(rh,rW,'Right'); }
+  ANIM.avatar.updateMatrixWorld(true);
+  PREV_AVATAR_FRAME=fd;
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATION LOOP
+═══════════════════════════════════════════════ */
+function lerpA(a,b,t){ if(!a||!b) return a||b; return [a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t,a[2]*(1-t)+b[2]*t]; }
+function lerpFrame(fa,fb,t){
+  if(!fa) return fb; if(!fb) return fa;
+  var r={pose:{},left_hand:null,right_hand:null};
+  var keys={}; Object.keys(fa.pose||{}).forEach(function(k){keys[k]=1;}); Object.keys(fb.pose||{}).forEach(function(k){keys[k]=1;});
+  Object.keys(keys).forEach(function(k){ r.pose[k]=lerpA((fa.pose||{})[k],(fb.pose||{})[k],t)||((fa.pose||{})[k])||((fb.pose||{})[k]); });
+  if(fa.left_hand&&fb.left_hand) r.left_hand=fa.left_hand.map(function(p,i){return lerpA(p,fb.left_hand[i],t);}); else r.left_hand=fa.left_hand||fb.left_hand;
+  if(fa.right_hand&&fb.right_hand) r.right_hand=fa.right_hand.map(function(p,i){return lerpA(p,fb.right_hand[i],t);}); else r.right_hand=fa.right_hand||fb.right_hand;
+  return r;
+}
+
+function animLoop(){
+  requestAnimationFrame(animLoop);
+  var delta=ANIM.clock.getDelta();
+  if(ANIM.controls) ANIM.controls.update();
+  if(ANIM.playing&&ANIM.queue.length>0){
+    ANIM.frameTimer+=delta;
+    var fd1=1/ANIM.FPS;
+    var item=ANIM.queue[ANIM.queueIdx],frames=item.frames,total=frames.length;
+    var isLast=ANIM.queueIdx===ANIM.queue.length-1;
+    var subT=Math.min(ANIM.frameTimer/fd1,1.0);
+    var fdCurr=frames[ANIM.frameIdx],fdNext=null;
+    if(ANIM.frameIdx+1<total) fdNext=frames[ANIM.frameIdx+1];
+    else if(!isLast) fdNext=ANIM.queue[ANIM.queueIdx+1].frames[0];
+    var fd=fdCurr; if(fdNext) fd=lerpFrame(fdCurr,fdNext,subT);
+    var left=total-ANIM.frameIdx;
+    if(!isLast&&left<=ANIM.TRANSITION_FRAMES) fd=lerpFrame(fd,ANIM.queue[ANIM.queueIdx+1].frames[0],1-(left/ANIM.TRANSITION_FRAMES));
+    applyAvatarFrame(fd);
+    var totalF=ANIM.queue.reduce(function(s,r){return s+r.frames.length;},0);
+    var doneF=ANIM.queue.slice(0,ANIM.queueIdx).reduce(function(s,r){return s+r.frames.length;},0);
+    document.getElementById('pbFill').style.width=((doneF+ANIM.frameIdx+subT)/totalF*100)+'%';
+    document.getElementById('frameCounter').textContent=(doneF+ANIM.frameIdx)+'/'+totalF;
+    if(ANIM.frameTimer>=fd1){
+      ANIM.frameTimer-=fd1; ANIM.frameIdx++;
+      if(ANIM.frameIdx>=total){
+        if(!isLast){ANIM.queueIdx++;ANIM.frameIdx=0;}
+        else{ANIM.frameIdx=total-1;ANIM.playing=false;setAnimStatus('Tamamlandı','playing');}
+      }
+    }
+  }
+  if(ANIM.renderer) ANIM.renderer.render(ANIM.scene,ANIM.camera);
+}
+
+/* ═══════════════════════════════════════════════
+   PLAYBACK CONTROLS
+═══════════════════════════════════════════════ */
+async function playSentence(text){
+  if(!ANIM.initialized) return;
+  var words=text.trim().toLowerCase().replace(/[,;]/g,' ').split(/\s+/).filter(function(w){return w.length>0;});
+  if(!words.length) return;
+  setAnimStatus('Yükleniyor...','');
+  document.getElementById('playBtn').disabled=true;
+  var results=await Promise.all(words.map(async function(word){
+    try{ var res=await fetch('/landmark/'+encodeURIComponent(word)); if(!res.ok) return {word:word,frames:null}; var d=await res.json(); return {word:word,frames:d.frames}; }
+    catch(e){ return {word:word,frames:null}; }
+  }));
+  ANIM.queue=results.filter(function(r){return r.frames&&r.frames.length>0;});
+  if(!ANIM.queue.length){ setAnimStatus('Bulunamadı: '+words.join(', '),'error'); document.getElementById('playBtn').disabled=false; return; }
+  ANIM.queueIdx=0; ANIM.frameIdx=0; ANIM.frameTimer=0; ANIM.playing=true;
+  document.getElementById('playPauseBtn').textContent='⏸';
+  document.getElementById('vpStatus').textContent='Oynatılıyor: '+ANIM.queue.map(function(r){return r.word;}).join(' › ');
+  setAnimStatus('Oynatılıyor: '+ANIM.queue.map(function(r){return r.word;}).join(' › '),'playing');
+  document.getElementById('playBtn').disabled=false;
+  // Aktif kelimeyi işaretle
+  document.querySelectorAll('.word-chip').forEach(function(c){ c.classList.toggle('active', c.dataset.word===words[0]); });
+}
+function playCurrentInput(){ var t=document.getElementById('wordInput').value.trim(); if(t) playSentence(t); }
+function togglePlay(){ ANIM.playing=!ANIM.playing; document.getElementById('playPauseBtn').textContent=ANIM.playing?'⏸':'▶'; }
+function restartAnim(){ ANIM.queueIdx=0;ANIM.frameIdx=0;ANIM.frameTimer=0;ANIM.playing=true;document.getElementById('playPauseBtn').textContent='⏸'; }
+function setAnimStatus(t,c){ var el=document.getElementById('animStatus'); el.textContent=t; el.className='anim-status'+(c?' '+c:''); }
+
+/* ═══════════════════════════════════════════════
+   SEARCH + WORD LIST
+═══════════════════════════════════════════════ */
+function onSearchInput(){
+  var q=document.getElementById('wordInput').value,last=q.trim().toLowerCase().split(/\s+/).pop();
+  var sb=document.getElementById('suggestions');
+  document.getElementById('playBtn').disabled=q.trim().length===0;
+  if(last.length<1){sb.style.display='none';return;}
+  var m=ANIM.wordList.filter(function(w){return w.startsWith(last);}).slice(0,8);
+  if(!m.length){sb.style.display='none';return;}
+  sb.innerHTML=m.map(function(w){return '<div class="suggestion-item" onclick="selectWord(\''+w+'\')">'+w+'</div>';}).join('');
+  sb.style.display='block';
+}
+function onSearchKey(e){
+  if(e.key==='Enter'){document.getElementById('suggestions').style.display='none';playCurrentInput();}
+  if(e.key==='Escape') document.getElementById('suggestions').style.display='none';
+}
+function selectWord(w){
+  document.getElementById('wordInput').value=w;
+  document.getElementById('suggestions').style.display='none';
+  document.getElementById('playBtn').disabled=false;
+  playSentence(w);
+}
+function buildWordGrid(words){
+  document.getElementById('wordGrid').innerHTML=words.map(function(w){
+    return '<div class="word-chip" data-word="'+w+'" onclick="selectWord(\''+w+'\')" title="'+w+'">'+w+'</div>';
+  }).join('');
+}
+document.addEventListener('click',function(e){ if(!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display='none'; });
+
+/* ═══════════════════════════════════════════════
+   POSTMESSAGE (SignTurk UI → avatar iframe)
+═══════════════════════════════════════════════ */
+window.addEventListener('message',function(event){
+  var data=event.data;
+  if(data&&data.type==='play_sign'&&data.word) selectWord(String(data.word).trim());
+});
+
+/* ═══════════════════════════════════════════════
+   BAŞLAT
+═══════════════════════════════════════════════ */
+(function(){
+  // Önce Three.js sahnesini başlat
+  initAnim();
+  // avatar.glb'yi otomatik yükle (frontend/ klasöründen)
+  loadAvatar('/frontend/avatar.glb', false);
+  // WebSocket bağlan
+  connectWS();
+})();
+</script>
+</body>
+</html>

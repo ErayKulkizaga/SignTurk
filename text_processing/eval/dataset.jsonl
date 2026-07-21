@@ -1,0 +1,112 @@
+{"words": ["ben", "okul", "gitmek"], "expected": "Ben okula gidiyorum.", "tags": ["dative", "1s"]}
+{"words": ["sen", "okul", "gitmek"], "expected": "Sen okula gidiyorsun.", "tags": ["dative", "2s"]}
+{"words": ["o", "ev", "gelmek"], "expected": "O eve geliyor.", "tags": ["dative", "3s"]}
+{"words": ["ben", "araba", "gitmek"], "expected": "Ben arabaya gidiyorum.", "tags": ["dative", "1s", "vowel_final"]}
+{"words": ["biz", "iş", "dönmek"], "expected": "Biz işe dönüyoruz.", "tags": ["dative", "1p"]}
+{"words": ["ben", "ev", "beklemek"], "expected": "Ben evde bekliyorum.", "tags": ["locative", "1s"]}
+{"words": ["o", "okul", "kalmak"], "expected": "O okulda kalıyor.", "tags": ["locative", "3s"]}
+{"words": ["ben", "iş", "durmak"], "expected": "Ben işte duruyorum.", "tags": ["locative", "1s", "hardening"]}
+{"words": ["ben", "ev", "çıkmak"], "expected": "Ben evden çıkıyorum.", "tags": ["ablative", "1s"]}
+{"words": ["o", "iş", "ayrılmak"], "expected": "O işten ayrılıyor.", "tags": ["ablative", "3s", "hardening"]}
+{"words": ["ben", "su", "içmek"], "expected": "Ben suyu içiyorum.", "tags": ["accusative", "1s"]}
+{"words": ["ben", "kitap", "yazmak"], "expected": "Ben kitabı yazıyorum.", "tags": ["accusative", "1s", "softening"]}
+{"words": ["ben", "kitap", "okumak"], "expected": "Ben kitap okuyorum.", "tags": ["indefinite", "1s"]}
+{"words": ["ben", "su", "istemek"], "expected": "Ben su istiyorum.", "tags": ["indefinite", "1s", "intent"]}
+{"words": ["sen", "ağaç", "görmek"], "expected": "Sen ağaç görüyorsun.", "tags": ["indefinite", "2s"]}
+{"words": ["o", "araba", "almak"], "expected": "O araba alıyor.", "tags": ["indefinite", "3s"]}
+{"words": ["biz", "yemek", "yemek"], "expected": "Biz yemek yiyoruz.", "tags": ["homonym", "1p"]}
+{"words": ["yemek", "yemek"], "expected": "Yemek yiyor.", "tags": ["homonym", "3s"]}
+{"words": ["sen", "ben", "sevmek"], "expected": "Sen beni seviyorsun.", "tags": ["sov", "accusative", "2s"]}
+{"words": ["ben", "sen", "anlamak"], "expected": "Ben seni anlıyorum.", "tags": ["sov", "accusative", "1s"]}
+{"words": ["ahmet", "kitap", "yazmak"], "expected": "Ahmet kitabı yazıyor.", "tags": ["proper_noun", "accusative", "3s"]}
+{"words": ["merhaba"], "expected": "Merhaba.", "tags": ["greeting", "single"]}
+{"words": ["gitmek", "sen", "okul"], "expected": "Sen okula gidiyorsun.", "tags": ["sov_inverted", "dative", "2s"]}
+{"words": ["sen", "gitmek", "okul"], "expected": "Sen okula gidiyorsun.", "tags": ["sov_inverted", "dative", "2s"]}
+{"words": ["sevmek", "sen", "ben"], "expected": "Sen beni seviyorsun.", "tags": ["sov_inverted", "accusative", "2s"]}
+{"words": ["ben", "gelmek", "istemek"], "expected": "Ben gelmek istiyorum.", "tags": ["complement_verb", "1s", "intent"]}
+{"words": ["merhaba", "ben", "su", "içmek"], "expected": "Merhaba, ben suyu içiyorum.", "tags": ["greeting", "accusative", "1s"]}
+{"words": ["merhaba", "ben", "su", "istemek"], "expected": "Merhaba, ben su istiyorum.", "tags": ["greeting", "indefinite", "1s", "intent"]}
+{"words": ["sen", "gelmek", "mi"], "expected": "Sen geliyor musun?", "tags": ["question", "2s"]}
+{"words": ["ben", "gelmek", "mi"], "expected": "Ben geliyor muyum?", "tags": ["question", "1s"]}
+{"words": ["o", "gelmek", "mi"], "expected": "O geliyor mu?", "tags": ["question", "3s"]}
+{"words": ["sen", "okul", "gitmek", "mi"], "expected": "Sen okula gidiyor musun?", "tags": ["question", "dative", "2s"]}
+{"words": ["sen", "öğrenci", "mi"], "expected": "Sen öğrenci misin?", "tags": ["question", "nominal", "2s"]}
+{"words": ["ben", "gelmek", "değil"], "expected": "Ben gelmiyorum.", "tags": ["negation", "1s"]}
+{"words": ["sen", "gitmek", "değil"], "expected": "Sen gitmiyorsun.", "tags": ["negation", "2s"]}
+{"words": ["o", "okul", "gitmek", "değil"], "expected": "O okula gitmiyor.", "tags": ["negation", "dative", "3s"]}
+{"words": ["ben", "okumak", "değil"], "expected": "Ben okumuyorum.", "tags": ["negation", "1s", "back_vowel"]}
+{"words": ["hayır", "ben", "gitmek", "değil"], "expected": "Hayır, ben gitmiyorum.", "tags": ["negation", "standalone", "1s"]}
+{"words": ["ben", "öğrenci", "değil"], "expected": "Ben öğrenci değilim.", "tags": ["nominal_negation", "1s"]}
+{"words": ["ev", "yok"], "expected": "Ev yok.", "tags": ["existential", "3s"]}
+{"words": ["ben", "evde", "yok"], "expected": "Ben evde yokum.", "tags": ["existential", "1s"]}
+{"words": ["hayır"], "expected": "Hayır.", "tags": ["standalone", "single"]}
+{"words": ["hayır", "ben", "gelmek"], "expected": "Hayır, ben gelmiyorum.", "tags": ["negation", "standalone", "1s"]}
+{"words": ["hayır", "sen", "okul", "gitmek"], "expected": "Hayır, sen okula gitmiyorsun.", "tags": ["negation", "standalone", "dative", "2s"]}
+{"words": ["üç"], "expected": "Üç.", "tags": ["numeric", "single"]}
+{"words": ["5"], "expected": "5.", "tags": ["numeric", "single"]}
+{"words": ["ev"], "expected": "Ev.", "tags": ["single", "noun"]}
+{"words": ["o", "okul", "gitmek"], "expected": "O okula gidiyor.", "tags": ["dative", "3s"]}
+{"words": ["biz", "okul", "gitmek"], "expected": "Biz okula gidiyoruz.", "tags": ["dative", "1p"]}
+{"words": ["sen", "ev", "gitmek"], "expected": "Sen eve gidiyorsun.", "tags": ["dative", "2s"]}
+{"words": ["ben", "ev", "gitmek"], "expected": "Ben eve gidiyorum.", "tags": ["dative", "1s"]}
+{"words": ["sen", "ev", "beklemek"], "expected": "Sen evde bekliyorsun.", "tags": ["locative", "2s"]}
+{"words": ["o", "ev", "beklemek"], "expected": "O evde bekliyor.", "tags": ["locative", "3s"]}
+{"words": ["biz", "ev", "beklemek"], "expected": "Biz evde bekliyoruz.", "tags": ["locative", "1p"]}
+{"words": ["sen", "su", "içmek"], "expected": "Sen suyu içiyorsun.", "tags": ["accusative", "2s"]}
+{"words": ["o", "su", "içmek"], "expected": "O suyu içiyor.", "tags": ["accusative", "3s"]}
+{"words": ["biz", "su", "içmek"], "expected": "Biz suyu içiyoruz.", "tags": ["accusative", "1p"]}
+{"words": ["sen", "kitap", "okumak"], "expected": "Sen kitap okuyorsun.", "tags": ["indefinite", "2s"]}
+{"words": ["o", "kitap", "okumak"], "expected": "O kitap okuyor.", "tags": ["indefinite", "3s"]}
+{"words": ["biz", "kitap", "okumak"], "expected": "Biz kitap okuyoruz.", "tags": ["indefinite", "1p"]}
+{"words": ["ben", "ağaç", "görmek"], "expected": "Ben ağaç görüyorum.", "tags": ["indefinite", "1s"]}
+{"words": ["o", "ağaç", "görmek"], "expected": "O ağaç görüyor.", "tags": ["indefinite", "3s"]}
+{"words": ["ben", "ev", "gelmek"], "expected": "Ben eve geliyorum.", "tags": ["dative", "1s"]}
+{"words": ["sen", "ev", "gelmek"], "expected": "Sen eve geliyorsun.", "tags": ["dative", "2s"]}
+{"words": ["biz", "ev", "gelmek"], "expected": "Biz eve geliyoruz.", "tags": ["dative", "1p"]}
+{"words": ["o", "gitmek", "mi"], "expected": "O gidiyor mu?", "tags": ["question", "3s"]}
+{"words": ["biz", "gelmek", "mi"], "expected": "Biz geliyor muyuz?", "tags": ["question", "1p"]}
+{"words": ["sen", "okumak", "değil"], "expected": "Sen okumuyorsun.", "tags": ["negation", "2s"]}
+{"words": ["o", "gelmek", "değil"], "expected": "O gelmiyor.", "tags": ["negation", "3s"]}
+{"words": ["para", "yok"], "expected": "Para yok.", "tags": ["existential", "3s"]}
+{"words": ["sen", "gitmek"], "expected": "Sen gidiyorsun.", "tags": ["2s"]}
+{"words": ["okumak"], "expected": "Okuyorum.", "tags": ["verb_only", "1s"]}
+{"words": ["su", "istemek"], "expected": "Su istiyor.", "tags": ["sov", "3s", "intent"]}
+{"words": ["gitmek"], "expected": "Gidiyorum.", "tags": ["verb_only", "1s"]}
+{"words": ["sen", "gelmek"], "expected": "Sen geliyorsun.", "tags": ["2s"]}
+{"words": ["merhaba", "ben", "eray"], "expected": "Merhaba, ben eray.", "tags": ["greeting", "nominal"]}
+{"words": ["ben", "hastane", "gitmek"], "expected": "Ben hastaneye gidiyorum.", "tags": ["dative", "1s"]}
+{"words": ["o", "okul", "gelmek"], "expected": "O okula geliyor.", "tags": ["dative", "3s"]}
+{"words": ["biz", "iş", "gitmek"], "expected": "Biz işe gidiyoruz.", "tags": ["dative", "1p"]}
+{"words": ["ben", "okul", "dönmek"], "expected": "Ben okula dönüyorum.", "tags": ["dative", "1s"]}
+{"words": ["o", "ev", "dönmek"], "expected": "O eve dönüyor.", "tags": ["dative", "3s"]}
+{"words": ["ben", "okul", "kalmak"], "expected": "Ben okulda kalıyorum.", "tags": ["locative", "1s"]}
+{"words": ["sen", "hastane", "beklemek"], "expected": "Sen hastanede bekliyorsun.", "tags": ["locative", "2s"]}
+{"words": ["o", "iş", "durmak"], "expected": "O işte duruyor.", "tags": ["locative", "3s"]}
+{"words": ["biz", "ev", "kalmak"], "expected": "Biz evde kalıyoruz.", "tags": ["locative", "1p"]}
+{"words": ["sen", "ev", "çıkmak"], "expected": "Sen evden çıkıyorsun.", "tags": ["ablative", "2s"]}
+{"words": ["o", "okul", "ayrılmak"], "expected": "O okuldan ayrılıyor.", "tags": ["ablative", "3s"]}
+{"words": ["ben", "iş", "çıkmak"], "expected": "Ben işten çıkıyorum.", "tags": ["ablative", "1s"]}
+{"words": ["ben", "çay", "içmek"], "expected": "Ben çayı içiyorum.", "tags": ["accusative", "1s"]}
+{"words": ["sen", "çay", "içmek"], "expected": "Sen çayı içiyorsun.", "tags": ["accusative", "2s"]}
+{"words": ["o", "et", "yemek"], "expected": "O et yiyor.", "tags": ["indefinite", "3s"]}
+{"words": ["biz", "kitap", "yazmak"], "expected": "Biz kitabı yazıyoruz.", "tags": ["accusative", "1p"]}
+{"words": ["sen", "kitap", "yazmak"], "expected": "Sen kitabı yazıyorsun.", "tags": ["accusative", "2s"]}
+{"words": ["ben", "araba", "almak"], "expected": "Ben araba alıyorum.", "tags": ["indefinite", "1s"]}
+{"words": ["sen", "araba", "almak"], "expected": "Sen araba alıyorsun.", "tags": ["indefinite", "2s"]}
+{"words": ["biz", "ağaç", "görmek"], "expected": "Biz ağaç görüyoruz.", "tags": ["indefinite", "1p"]}
+{"words": ["ben", "gitmek", "mi"], "expected": "Ben gidiyor muyum?", "tags": ["question", "1s"]}
+{"words": ["sen", "içmek", "mi"], "expected": "Sen içiyor musun?", "tags": ["question", "2s"]}
+{"words": ["o", "okul", "gitmek", "mi"], "expected": "O okula gidiyor mu?", "tags": ["question", "dative", "3s"]}
+{"words": ["biz", "ev", "gitmek", "mi"], "expected": "Biz eve gidiyor muyuz?", "tags": ["question", "dative", "1p"]}
+{"words": ["sen", "gelmek", "değil"], "expected": "Sen gelmiyorsun.", "tags": ["negation", "2s"]}
+{"words": ["o", "içmek", "değil"], "expected": "O içmiyor.", "tags": ["negation", "3s"]}
+{"words": ["biz", "gitmek", "değil"], "expected": "Biz gitmiyoruz.", "tags": ["negation", "1p"]}
+{"words": ["ben", "gitmek", "değil"], "expected": "Ben gitmiyorum.", "tags": ["negation", "1s"]}
+{"words": ["para", "var"], "expected": "Para var.", "tags": ["existential", "3s"]}
+{"words": ["ev", "var"], "expected": "Ev var.", "tags": ["existential", "3s"]}
+{"words": ["su", "yok"], "expected": "Su yok.", "tags": ["existential", "3s"]}
+{"words": ["zaman", "yok"], "expected": "Zaman yok.", "tags": ["existential", "3s"]}
+{"words": ["evet"], "expected": "Evet.", "tags": ["single"]}
+{"words": ["tamam"], "expected": "Tamam.", "tags": ["single"]}
+{"words": ["iki"], "expected": "İki.", "tags": ["numeric", "single"]}
+{"words": ["selam", "ben", "ali"], "expected": "Selam, ben ali.", "tags": ["greeting", "nominal"]}
