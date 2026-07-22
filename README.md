@@ -1,3 +1,15 @@
+---
+title: SignTurk
+emoji: 🤟
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+pinned: false
+license: mit
+short_description: Real-time Turkish Sign Language recognition and translation
+---
+
 # SignTurk
 
 Real-time Turkish Sign Language (TİD) recognition, sentence assembly, speech output, and 3D sign visualization in one FastAPI application.
