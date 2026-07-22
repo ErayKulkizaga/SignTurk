@@ -2,8 +2,6 @@
 
 Composition root for the web layer: wires the request/response schemas, the
 pipeline cache, and the async job store together behind one APIRouter.
-Relocated out of the former root-level ``text_processing_routes.py`` (now a
-thin backward-compatible shim).
 """
 
 from __future__ import annotations

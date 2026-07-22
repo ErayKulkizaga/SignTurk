@@ -295,7 +295,7 @@ def load_model_assets():
                 def compute_output_shape(self, input_shape):
                     return (input_shape[0], input_shape[2])
 
-            MODEL = tf.keras.models.load_model(str(model_path))
+            MODEL = tf.keras.models.load_model(str(model_path), compile=False)
             MODEL.predict(np.zeros((1, SEQ_LEN, FEAT_DIM), dtype=np.float32), verbose=0)
             logger.info(f"[MODEL-NEXUS] Yüklendi — {MODEL.input_shape} → {MODEL.output_shape}")
         except Exception as e:
@@ -328,7 +328,7 @@ def load_animation_assets():
         model_file = ASSETS_DIR / cfg.get("model_file", "")
         if model_file.exists():
             try:
-                ANIM_MODEL = tf.keras.models.load_model(str(model_file))
+                ANIM_MODEL = tf.keras.models.load_model(str(model_file), compile=False)
                 logger.info(f"[ANIM-MODEL] Yüklendi — {ANIM_MODEL.input_shape}")
             except Exception as e:
                 logger.error(f"[ANIM-MODEL] Yüklenemedi: {e}")
@@ -707,7 +707,7 @@ except Exception as e:
     logger.warning(f"[TEXT] Sentence engine unavailable: {e}")
 
 try:
-    from text_processing_routes import router as text_processing_router
+    from text_processing.web.router import router as text_processing_router
     app.include_router(text_processing_router)
     logger.info("[TEXT] /api/text/* routes mounted")
 except Exception as e:
@@ -1270,6 +1270,18 @@ async def startup_event():
     logger.info(f"  MediaPipe:    {'READY' if MP_HANDS else 'MISSING'}")
     logger.info(f"  Database:     {database_name()}")
     logger.info("=" * 60)
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Release native MediaPipe resources before interpreter teardown."""
+    global MP_HANDS
+    if MP_HANDS is not None and hasattr(MP_HANDS, "close"):
+        try:
+            MP_HANDS.close()
+        except Exception as exc:
+            logger.warning("[MEDIAPIPE] Shutdown cleanup failed: %s", exc)
+    MP_HANDS = None
 
 
 if __name__ == "__main__":

@@ -17,7 +17,6 @@ COPY backend.py .
 COPY database.py .
 COPY models.py .
 COPY landmark_smoother.py .
-COPY text_processing_routes.py .
 COPY text_processing/ text_processing/
 COPY frontend/ frontend/
 COPY demo_assets_179/ demo_assets_179/

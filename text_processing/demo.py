@@ -48,7 +48,7 @@ def _print_models() -> None:
             print(f"      {spec.notes}")
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="SignAI hybrid grammar demo")
+    parser = argparse.ArgumentParser(description="SignTurk hybrid grammar demo")
     parser.add_argument("--use-ml", action="store_true", help="enable the HF model layer")
     parser.add_argument("--model", default=DEFAULT_MODEL_KEY, help="model key from the registry")
     parser.add_argument("--model-name", default=None, help="raw HF model name (overrides --model)")

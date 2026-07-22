@@ -13,7 +13,7 @@ Dependencies point inward — pure domain at the centre, I/O at the edges.
 ```
 buffer ─▶ pipeline ─▶ grammar ─▶ tts
                         │
-        web (FastAPI) ──┘   (text_processing_routes.py = thin shim)
+        web (FastAPI) ──┘
 ```
 
 ### `grammar/` (was a single ~2000-line module)
@@ -33,12 +33,12 @@ buffer ─▶ pipeline ─▶ grammar ─▶ tts
 `grammar/__init__.py` re-exports the full public API, so
 `from text_processing.grammar import …` is unchanged.
 
-### `web/` (was the root-level `text_processing_routes.py`)
+### `web/`
 
 `schemas` (Pydantic) · `cache` (bounded LRU+TTL pipeline cache) ·
 `jobs` (async job store + worker pool) · `router` (the `/api/text/*`
-endpoints). The root `text_processing_routes.py` is now a thin
-backward-compatible shim (`from text_processing_routes import router`).
+endpoints). Applications import the router directly from
+`text_processing.web.router`.
 
 ## ML observability
 
@@ -64,7 +64,14 @@ making network requests.
 ```bash
 python -m unittest discover -s tests -v
 python -m text_processing.eval --check --min-exact 0.98   # rule-based floor
-python -m compileall text_processing text_processing_routes.py
+python -m compileall text_processing
 ```
 
 The repository CI runs these checks on every push and pull request.
+
+For focused API development without TensorFlow, MediaPipe, or OpenCV:
+
+```bash
+python -m text_processing.devserver
+# Open http://127.0.0.1:8000/docs
+```

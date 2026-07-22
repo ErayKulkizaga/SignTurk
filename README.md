@@ -10,11 +10,16 @@ Real-time Turkish Sign Language (TİD) recognition, sentence assembly, speech ou
 </p>
 
 <p align="center">
+  <a href="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="Python 3.11" src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white">
   <img alt="TensorFlow" src="https://img.shields.io/badge/TensorFlow-2.18-FF6F00?logo=tensorflow&logoColor=white">
   <img alt="License MIT" src="https://img.shields.io/badge/License-MIT-black">
 </p>
+
+> **Project status:** maintained academic prototype and portfolio case study. The
+> repository is runnable locally, but it is not presented as a safety-critical or
+> production interpreting service.
 
 ## Why SignTurk
 
@@ -32,12 +37,29 @@ SignTurk turns isolated TİD signs captured by a standard RGB webcam into approv
 
 Two recognition systems were developed and evaluated. Accuracy alone did not determine the live product choice: the inference contract also had to match the browser/WebSocket pipeline.
 
-| Model | Input and architecture | Vocabulary | Top-1 | Role |
-|---|---|---:|---:|---|
-| **Live model** | 16 frames · 156 MediaPipe hand features · BiLSTM + temporal attention | 179 | **85.65%** | Selected for the application because its lightweight feature contract integrates cleanly with real-time webcam inference |
-| **Research model** | 32 RGB frames · RTMW/RTMPose whole-body landmarks · multi-stream temporal ensemble | 226 | **94.17%** | Higher-accuracy experiment; retained as the research track because it requires a different extractor and multi-stream runtime |
+| Model | Input and architecture | Vocabulary | Top-1 | Top-5 | Macro-F1 | Role |
+|---|---|---:|---:|---:|---:|---|
+| **Live model** | 16 frames · 156 MediaPipe hand features · BiLSTM + temporal attention | 179 | **85.65%** | **95.59%** | — | Selected for the application because its lightweight feature contract integrates cleanly with real-time webcam inference |
+| **Research model** | 32 RGB frames · RTMW/RTMPose whole-body landmarks · multi-stream temporal ensemble | 226 | **94.17%** | **99.49%** | **94.00%** | Higher-accuracy experiment; retained as the research track because it requires a different extractor and multi-stream runtime |
 
-The live model also reached **93.96% Top-3** and **95.59% Top-5** on its cross-subject evaluation. The 226-class result is reported separately so it is not mistaken for the model bundled with the live MediaPipe pipeline.
+The live model also reached **93.96% Top-3** on its cross-subject evaluation.
+All metrics above are offline evaluation results; the 226-class result is
+reported separately so it is not mistaken for the model bundled with the live
+MediaPipe pipeline.
+
+### What is actually bundled
+
+| Artifact | Included | Runtime purpose |
+|---|:---:|---|
+| `demo_assets_179/` | Yes | Current 179-class MediaPipe/BiLSTM live application |
+| `model_assets/` | Yes | Legacy 184-class color/depth compatibility path used by `/ws` |
+| 226-class RTMW research checkpoint | No | Research result documented above; its extractor and ensemble weights are not required by the live application |
+| AUTSL videos | No | Governed by the dataset owner and intentionally not redistributed |
+
+The legacy 184-class bundle is not one of the two headline evaluation tracks.
+It remains only to keep the older color/depth WebSocket demonstration working.
+The asset-contract tests verify each bundled model's class count, feature
+dimension, label map, normalization statistics, and checkpoint presence.
 
 ### Live preprocessing
 
@@ -113,10 +135,11 @@ database.py                Environment-based database config with SQLite fallbac
 models.py                  SQLAlchemy models
 frontend/                  Single-page product UI and Three.js avatar assets
 demo_assets_179/           Bundled 179-class live model and preprocessing metadata
-model_assets/              Legacy compatibility assets used by the animation WebSocket
+model_assets/              Legacy 184-class compatibility model for the /ws endpoint
 dataset/landmarks/         Per-word landmark sequences for avatar playback
 text_processing/           Turkish sentence, grammar, evaluation, and TTS modules
 docs/images/               Product screenshots used in this README
+tests/                     Lightweight grammar and model-asset contract checks
 extract_landmarks.py       Offline AUTSL landmark extraction utility
 ```
 
@@ -190,6 +213,9 @@ docker compose up --build
 
 FastAPI also exposes interactive API documentation at `/docs` while the server is running.
 
+The older `/ws` endpoint is retained for the 184-class color/depth compatibility
+demo. New integrations should use `/api/predict/live`.
+
 ## Security and Publication Hygiene
 
 - Database credentials and optional API tokens are read only from environment variables.
@@ -228,6 +254,16 @@ curl http://127.0.0.1:8000/api/health
 ## Dataset
 
 Models were developed with [AUTSL](https://cvml.ankara.edu.tr/datasets/), a signer-independent Turkish Sign Language benchmark containing 226 isolated-sign classes. Dataset videos are not redistributed in this repository.
+
+## Intentionally Excluded
+
+- AUTSL source videos and generated training tensors
+- The 226-class RTMW research ensemble checkpoint and extraction cache
+- Local databases, generated speech, uploads, environment files, and editor state
+- Experimental notebooks that are not part of the reproducible runtime
+
+Keeping these artifacts out of the repository makes the difference between the
+published application and the separate research track explicit.
 
 ## License
 

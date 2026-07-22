@@ -151,7 +151,7 @@ class MLGrammarCorrector:
             return None, MLError(
                 "timeout",
                 f"ML çıkarımı çok yavaş ({elapsed_ms / 1000:.1f}s > "
-                f"{timeout_s:.0f}s eşiği) — daha küçük/baŧka bir model deneyin.",
+                f"{timeout_s:.0f}s eşiği) — daha küçük/başka bir model deneyin.",
             )
         return text, None
 

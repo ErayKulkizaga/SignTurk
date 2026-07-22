@@ -1,4 +1,4 @@
-"""SignAI text-processing pipeline: word buffer → grammar → TTS.
+"""SignTurk text-processing pipeline: word buffer → grammar → TTS.
 
 Isolated from the LSTM model, FastAPI routes, UI, and 3D-avatar layers.
 """

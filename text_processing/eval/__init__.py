@@ -191,7 +191,7 @@ def aggregate(results: List[CaseResult], use_ml: bool) -> Dict[str, object]:
     return report
 
 def format_report(report: Dict[str, object], results: List[CaseResult]) -> str:
-    lines = ["", "=== TİD → Türkçe eval ===", f"examples: {report['n']}"]
+    lines = ["", "=== TID -> Turkish grammar eval ===", f"examples: {report['n']}"]
     for key in ("exact_match", "mean_root_preservation", "intent_ok", "question_ok", "negation_ok"):
         lines.append(f"  {key:<24} {report.get(key)}")
     if "fallback_rate" in report:
@@ -214,7 +214,7 @@ def format_report(report: Dict[str, object], results: List[CaseResult]) -> str:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="TİD → Türkçe grammar eval")
+    parser = argparse.ArgumentParser(description="TID -> Turkish grammar eval")
     parser.add_argument(
         "--use-ml", action="store_true", help="enable the ML layer (needs HF token/model)"
     )

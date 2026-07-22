@@ -6,7 +6,7 @@ Thank you for your interest in contributing to this project!
 
 If you encounter a bug or unexpected behavior:
 
-1. Check if the issue has already been reported in [Issues](../../issues)
+1. Check if the issue has already been reported in [Issues](https://github.com/ErayKulkizaga/SignTurk/issues)
 2. If not, open a new issue with:
    - A clear title and description
    - Steps to reproduce the problem
@@ -25,7 +25,10 @@ Open an issue with the `enhancement` label and describe:
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature/your-feature-name`
 3. Make your changes
-4. Run the lightweight checks: `python -m unittest discover -s tests -v`
+4. Run the lightweight checks:
+   - `python -m unittest discover -s tests -v`
+   - `python -m text_processing.eval --check --min-exact 0.98`
+   - `python -m compileall backend.py database.py models.py text_processing`
 5. Commit with a clear message: `git commit -m "add: your feature description"`
 6. Push and open a Pull Request against `main`
 

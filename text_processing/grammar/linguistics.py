@@ -354,7 +354,7 @@ def apply_consonant_softening(stem: str) -> str:
     Implements §1.7.1:
 
         kitap → kitab    ağaç → ağac
-        kanat → kanad    çocuk → çocuį
+        kanat → kanad    çocuk → çocuğ
 
     Monosyllabic stems are normally exempt (§1.7.3), except for the
     lexical exceptions listed in ``_MONO_SOFTEN_EXCEPTIONS``
