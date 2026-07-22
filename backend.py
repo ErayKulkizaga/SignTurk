@@ -30,6 +30,11 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
 from database import engine, get_db, Base, database_name
+from live_pipeline import (
+    build_legacy_feature_vector,
+    count_detected_hands as count_live_hands,
+    preprocess_sequence as preprocess_live_sequence,
+)
 import models
 
 # ── Landmark smoothing ───────────────────────────────────
@@ -409,70 +414,21 @@ def extract_landmarks_from_frame(frame: np.ndarray, mirror: bool = False) -> Opt
         return np.zeros(126, dtype=np.float32)
 
 
-def hand_is_present(hand_vec: np.ndarray) -> bool:
-    return bool(np.linalg.norm(hand_vec) > MIN_HAND_NORM)
-
-
 def count_detected_hands(landmarks: np.ndarray) -> int:
-    if landmarks is None or landmarks.shape != (126,):
-        return 0
-    return int(hand_is_present(landmarks[:63])) + int(hand_is_present(landmarks[63:]))
-
-
-def normalize_hands_relative(X):
-    result = X.copy()
-    T = result.shape[0]
-    for start in [0, 63]:
-        hand = result[:, start:start+63].reshape(T, 21, 3)
-        hand_rel = hand - hand[:, 0:1, :]
-        scale = np.linalg.norm(hand_rel[:, 9, :], axis=-1, keepdims=True)[:, :, np.newaxis]
-        scale = np.where(scale < 1e-6, 1.0, scale)
-        result[:, start:start+63] = (hand_rel / scale).reshape(T, 63)
-    return result
-
-
-def compute_finger_angles(X):
-    T = X.shape[0]
-    chains = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]]
-    angles_all = []
-    for hs in [0, 63]:
-        hand = X[:, hs:hs+63].reshape(T, 21, 3)
-        ha = np.zeros((T, 15), dtype=np.float32)
-        idx = 0
-        for chain in chains:
-            for i in range(len(chain) - 1):
-                a = hand[:, (0 if i == 0 else chain[i-1]), :]
-                b = hand[:, chain[i], :]
-                c = hand[:, chain[i+1], :]
-                v1, v2 = a - b, c - b
-                cos_a = np.sum(v1*v2, axis=-1) / (
-                    np.linalg.norm(v1, axis=-1) * np.linalg.norm(v2, axis=-1) + 1e-8)
-                ha[:, idx] = np.arccos(np.clip(cos_a, -1, 1))
-                idx += 1
-        angles_all.append(ha)
-    return np.concatenate([X, np.concatenate(angles_all, axis=-1)], axis=-1)
-
-
-def zscore_normalize(X):
-    if NORM_MEAN is None or NORM_STD is None:
-        return X
-    return (X - NORM_MEAN) / NORM_STD
+    return count_live_hands(landmarks, MIN_HAND_NORM)
 
 
 def preprocess_sequence(raw_landmarks):
-    x = normalize_hands_relative(raw_landmarks)
-    x = compute_finger_angles(x)
-    x = zscore_normalize(x)
-    return x[np.newaxis, :, :].astype(np.float32)
+    return preprocess_live_sequence(raw_landmarks, NORM_MEAN, NORM_STD)
 
 
 # ═══════════════════════════════════════════════════════════
 #  PREPROCESSING — signn 3D animasyon (color+depth)
 # ═══════════════════════════════════════════════════════════
 def build_anim_feature_vector(color_seq, depth_seq):
-    color_norm = (color_seq - ANIM_NORM_MEAN[:ANIM_SINGLE_DIM]) / ANIM_NORM_STD[:ANIM_SINGLE_DIM]
-    depth_norm = (depth_seq - ANIM_NORM_MEAN[ANIM_SINGLE_DIM:]) / ANIM_NORM_STD[ANIM_SINGLE_DIM:]
-    return np.concatenate([color_norm, depth_norm], axis=-1)[np.newaxis, :, :]
+    return build_legacy_feature_vector(
+        color_seq, depth_seq, ANIM_NORM_MEAN, ANIM_NORM_STD, ANIM_SINGLE_DIM
+    )
 
 
 # ═══════════════════════════════════════════════════════════

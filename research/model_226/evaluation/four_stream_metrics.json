@@ -1,0 +1,35 @@
+{
+  "experiment_id": "four-stream-runtime-2026-06",
+  "task": "isolated Turkish Sign Language classification",
+  "dataset": "AUTSL",
+  "split": "official held-out test split",
+  "samples": 3742,
+  "classes": 226,
+  "frame_count": 32,
+  "streams": [
+    "skeleton_v2",
+    "skeleton_v4_seed",
+    "skeleton_v6_seed",
+    "hand_stream"
+  ],
+  "weights": [
+    0.10000000149011612,
+    0.21000000834465027,
+    0.550000011920929,
+    0.14000000059604645
+  ],
+  "metrics": {
+    "top_1_accuracy": 0.9417423837520043,
+    "top_3_accuracy": 0.9887760555852485,
+    "top_5_accuracy": 0.9949225013361839,
+    "macro_f1": 0.9399370176597913
+  },
+  "correct_top_1": 3524,
+  "evidence": {
+    "configuration": "../config/backend_config.json",
+    "error_summary": "four_stream_error_summary.png",
+    "top_confusions": "four_stream_top_confusions.csv",
+    "raw_predictions_available_in_repository": false
+  },
+  "verification_status": "Locally recorded evaluation. The aggregate values and error summary are preserved, but a fresh independent run requires the original per-sample prediction exports or re-extraction of the official test split."
+}

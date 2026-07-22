@@ -39,6 +39,11 @@ frontend/mp_models/
 hand_landmarker.task
 pose_landmarker.task
 
+# Downloaded model assets (see model-assets.json)
+*.keras
+*.onnx
+*.part
+
 # Editors and operating systems
 .vscode/
 .idea/

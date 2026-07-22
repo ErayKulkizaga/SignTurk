@@ -1,0 +1,84 @@
+{
+  "project": "SignTurk",
+  "purpose": "reproducible 226-class research inference package",
+  "num_classes": 226,
+  "input_type": "rgb_color_video_only",
+  "depth_used": false,
+  "requires_depth_sensor": false,
+  "frame_count": 32,
+  "runtime": {
+    "preferred_extractor": "hf_rtmw",
+    "try_rtmpose_first": false,
+    "allow_mediapipe_fallback": false,
+    "realtime_streams": [
+      "skeleton_v2",
+      "skeleton_v4_seed",
+      "skeleton_v6_seed",
+      "hand_stream"
+    ]
+  },
+  "landmark_extractor": {
+    "name": "rtmlib RTMPose WholeBody ONNX",
+    "note": "Backend must reproduce the same 75-landmark feature format used in training."
+  },
+  "feature_shapes": {
+    "joint": [
+      32,
+      300
+    ],
+    "bone": [
+      32,
+      144
+    ],
+    "joint_motion": [
+      32,
+      300
+    ],
+    "bone_motion": [
+      32,
+      144
+    ],
+    "extra": [
+      32,
+      39
+    ]
+  },
+  "streams": [
+    "skeleton_v2",
+    "skeleton_v4_seed",
+    "skeleton_v6_seed",
+    "hand_stream"
+  ],
+  "weights": {
+    "skeleton_v2": 0.10000000149011612,
+    "skeleton_v4_seed": 0.21000000834465027,
+    "skeleton_v6_seed": 0.550000011920929,
+    "hand_stream": 0.14000000059604645
+  },
+  "model_files": {
+    "skeleton_v2": "models/skeleton_v2.keras",
+    "skeleton_v4_seed": "models/skeleton_v4_seed.keras",
+    "skeleton_v6_seed": "models/skeleton_v6_seed.keras",
+    "hand_stream": "models/hand_stream.keras"
+  },
+  "latest_06_final_test_metrics": {
+    "top_1_accuracy": 0.9417423837520043,
+    "top_3_accuracy": 0.9887760555852485,
+    "top_5_accuracy": 0.9949225013361839,
+    "macro_f1": 0.9399370176597913
+  },
+  "metrics_evidence": {
+    "split": "AUTSL held-out test",
+    "samples": 3742,
+    "status": "locally recorded; per-sample prediction export required for independent re-verification",
+    "summary": "../evaluation/four_stream_metrics.json"
+  },
+  "excluded": [
+    "AUTSL dataset",
+    "artifacts/features/*.npy",
+    "artifacts/features/skeleton_shards",
+    "RGB/flow caches",
+    "training-only prediction npz files"
+  ],
+  "missing_models": []
+}

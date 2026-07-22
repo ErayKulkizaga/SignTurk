@@ -4,8 +4,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./model_assets:/app/model_assets
-      - ./dataset/landmarks:/app/dataset/landmarks
+      - ./dataset/landmarks:/app/dataset/landmarks:ro
     environment:
       - TF_CPP_MIN_LOG_LEVEL=3
     env_file:

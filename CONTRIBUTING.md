@@ -28,9 +28,13 @@ Open an issue with the `enhancement` label and describe:
 4. Run the lightweight checks:
    - `python -m unittest discover -s tests -v`
    - `python -m text_processing.eval --check --min-exact 0.98`
-   - `python -m compileall backend.py database.py models.py text_processing`
+   - `python -m compileall backend.py database.py models.py live_pipeline.py text_processing signturk_runtime research tools`
 5. Commit with a clear message: `git commit -m "add: your feature description"`
 6. Push and open a Pull Request against `main`
+
+Do not commit model checkpoints or AUTSL-derived tensors. Publish versioned
+project checkpoints as GitHub Release assets, record their size and SHA-256 in
+`model-assets.json`, and verify them with `tools/download_models.py`.
 
 ## Areas Where Help Is Welcome
 

@@ -11,6 +11,7 @@ Real-time Turkish Sign Language (TİD) recognition, sentence assembly, speech ou
 
 <p align="center">
   <a href="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/docker.yml"><img alt="Docker build" src="https://github.com/ErayKulkizaga/SignTurk/actions/workflows/docker.yml/badge.svg"></a>
   <img alt="Python 3.11" src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white">
   <img alt="TensorFlow" src="https://img.shields.io/badge/TensorFlow-2.18-FF6F00?logo=tensorflow&logoColor=white">
@@ -35,31 +36,36 @@ SignTurk turns isolated TİD signs captured by a standard RGB webcam into approv
 
 ## Model Strategy
 
-Two recognition systems were developed and evaluated. Accuracy alone did not determine the live product choice: the inference contract also had to match the browser/WebSocket pipeline.
+Two recognition pipelines and multiple ensemble configurations were evaluated.
+Accuracy alone did not determine the live product choice: the extractor and
+feature contract also had to fit the browser/WebSocket pipeline.
 
-| Model | Input and architecture | Vocabulary | Top-1 | Top-5 | Macro-F1 | Role |
-|---|---|---:|---:|---:|---:|---|
-| **Live model** | 16 frames · 156 MediaPipe hand features · BiLSTM + temporal attention | 179 | **85.65%** | **95.59%** | — | Selected for the application because its lightweight feature contract integrates cleanly with real-time webcam inference |
-| **Research model** | 32 RGB frames · RTMW/RTMPose whole-body landmarks · multi-stream temporal ensemble | 226 | **94.17%** | **99.49%** | **94.00%** | Higher-accuracy experiment; retained as the research track because it requires a different extractor and multi-stream runtime |
+| Evaluation | Input and architecture | Vocabulary | Top-1 | Top-3 | Top-5 | Macro-F1 | Evidence status |
+|---|---|---:|---:|---:|---:|---:|---|
+| **Live application** | 16 frames · 156 MediaPipe hand features · BiLSTM + attention | 179 | **85.65%** | **93.96%** | **95.59%** | — | Bundled application model |
+| **Audited research result** | 32 RGB frames · RTMW/RTMPose · validation-selected 3-stream ensemble | 226 | **94.09%** | **98.69%** | **99.33%** | **93.91%** | Independently reproduced for the final report |
+| **Four-stream research record** | Same 32-frame contract · 3 skeleton seeds + hand stream | 226 | **94.17%** | **98.88%** | **99.49%** | **93.99%** | Aggregate result and error summary preserved; per-sample exports still need independent re-verification |
 
-The live model also reached **93.96% Top-3** on its cross-subject evaluation.
-All metrics above are offline evaluation results; the 226-class result is
-reported separately so it is not mistaken for the model bundled with the live
-MediaPipe pipeline.
+All metrics are offline results. The two 226-class rows are kept separate so a
+runtime configuration is not presented as independently reproduced evidence.
+See the [226-class model card](research/model_226/MODEL_CARD.md) for the exact
+split, weights, limitations, and provenance.
 
 ### What is actually bundled
 
 | Artifact | Included | Runtime purpose |
 |---|:---:|---|
-| `demo_assets_179/` | Yes | Current 179-class MediaPipe/BiLSTM live application |
-| `model_assets/` | Yes | Legacy 184-class color/depth compatibility path used by `/ws` |
-| 226-class RTMW research checkpoint | No | Research result documented above; its extractor and ensemble weights are not required by the live application |
+| `demo_assets_179/` | Metadata in Git; weight in Release | Current 179-class MediaPipe/BiLSTM live application |
+| `model_assets/` | Metadata in Git; weight in Release | Legacy 184-class color/depth compatibility path used by `/ws` |
+| `research/model_226/` | Config, model card, notebooks, and evaluation evidence in Git; weights in Release | Separate four-stream research runtime |
 | AUTSL videos | No | Governed by the dataset owner and intentionally not redistributed |
 
 The legacy 184-class bundle is not one of the two headline evaluation tracks.
 It remains only to keep the older color/depth WebSocket demonstration working.
-The asset-contract tests verify each bundled model's class count, feature
-dimension, label map, normalization statistics, and checkpoint presence.
+`tools/download_models.py` retrieves versioned weights and verifies both their
+size and SHA-256 digest. Asset-contract tests validate the manifests, class
+counts, feature dimensions, label maps, and ensemble configuration without
+downloading hundreds of megabytes in CI.
 
 ### Live preprocessing
 
@@ -85,6 +91,15 @@ RGB webcam frame
   → validation-selected probability ensemble
   → 226-class prediction
 ```
+
+<p align="center">
+  <img src="research/model_226/evaluation/four_stream_error_summary.png" alt="Four-stream 226-class per-class accuracy distribution and most frequent confusion pairs" width="100%">
+</p>
+
+The complete confusion-matrix generator is included at
+`research/evaluate_predictions.py`. The preserved chart is explicitly an error
+summary; regenerating the full 226×226 matrix requires the original probability
+and label arrays or a fresh official-test-split run.
 
 ## Product Tour
 
@@ -133,14 +148,20 @@ FastAPI
 backend.py                 FastAPI app, WebSockets, auth, inference, and APIs
 database.py                Environment-based database config with SQLite fallback
 models.py                  SQLAlchemy models
-frontend/                  Single-page product UI and Three.js avatar assets
-demo_assets_179/           Bundled 179-class live model and preprocessing metadata
-model_assets/              Legacy 184-class compatibility model for the /ws endpoint
+live_pipeline.py           Pure 179/184-class preprocessing helpers
+frontend/                  Product UI modules and Three.js avatar assets
+demo_assets_179/           179-class live preprocessing metadata
+model_assets/              Legacy 184-class compatibility metadata
+model-assets.json          Versioned model URLs, sizes, destinations, and SHA-256 hashes
+signturk_runtime/          Modular 226-class feature, extractor, ensemble, and stream runtime
+research/model_226/        Model card, configuration, notebooks, and evaluation evidence
+research/evaluate_predictions.py  Full metrics and confusion-matrix generator
 dataset/landmarks/         Per-word landmark sequences for avatar playback
 text_processing/           Turkish sentence, grammar, evaluation, and TTS modules
 docs/images/               Product screenshots used in this README
 tests/                     Lightweight grammar and model-asset contract checks
 extract_landmarks.py       Offline AUTSL landmark extraction utility
+tools/download_models.py   Checksum-verified model asset installer
 ```
 
 ## Quick Start
@@ -167,6 +188,7 @@ Install and run:
 
 ```bash
 pip install -r requirements.txt
+python tools/download_models.py --bundle live
 uvicorn backend:app --host 127.0.0.1 --port 8000
 ```
 
@@ -194,6 +216,9 @@ To create the first administrator, provide `SIGNTURK_ADMIN_EMAIL` and an 8+ char
 ```bash
 docker compose up --build
 ```
+
+The Docker image downloads and verifies the versioned live weights during the
+build; no host-side model volume is required.
 
 ## Main API Surface
 
@@ -234,7 +259,7 @@ Run the lightweight sentence-engine checks without loading TensorFlow:
 ```bash
 python -m unittest discover -s tests -v
 python -m text_processing.eval --check --min-exact 0.98
-python -m compileall backend.py database.py models.py text_processing
+python -m compileall backend.py database.py models.py live_pipeline.py text_processing signturk_runtime research tools
 ```
 
 Runtime health check:
@@ -247,6 +272,7 @@ curl http://127.0.0.1:8000/api/health
 
 - SignTurk recognizes **isolated signs**, not unrestricted continuous sign language.
 - The 179-class live and 226-class research results belong to different input pipelines and must not be compared as drop-in replacements.
+- The four-stream 94.17% result is a preserved local evaluation record; use the audited 94.09% row when independent reproducibility is required today.
 - Regional and signer variation can reduce recognition quality; predictions are not suitable for safety-critical communication.
 - gTTS requires network access. The deterministic text path remains available when speech or optional ML services are unavailable.
 - The platform is an academic prototype and does not replace a qualified interpreter.
@@ -258,13 +284,15 @@ Models were developed with [AUTSL](https://cvml.ankara.edu.tr/datasets/), a sign
 ## Intentionally Excluded
 
 - AUTSL source videos and generated training tensors
-- The 226-class RTMW research ensemble checkpoint and extraction cache
+- AUTSL-derived feature tensors, extraction caches, and raw per-sample prediction exports
 - Local databases, generated speech, uploads, environment files, and editor state
-- Experimental notebooks that are not part of the reproducible runtime
+- Third-party RTMW/YOLOX checkpoints in Git history (the verified downloader fetches them from their upstream hosts)
 
 Keeping these artifacts out of the repository makes the difference between the
 published application and the separate research track explicit.
 
 ## License
 
-Source code in this repository is released under the [MIT License](LICENSE). Dataset, model, font, and third-party asset licenses remain with their respective owners.
+Source code in this repository is released under the [MIT License](LICENSE).
+Dataset, model, font, and asset terms remain with their respective owners; see
+[Third-Party Notices](THIRD_PARTY_NOTICES.md).

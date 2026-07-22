@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "release": "https://github.com/ErayKulkizaga/SignTurk/releases/tag/model-assets-v1",
+  "assets": [
+    {
+      "bundle": "live",
+      "name": "live-179",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/live-179.keras",
+      "path": "demo_assets_179/model.keras",
+      "bytes": 62648152,
+      "sha256": "51c1acd57beb56cac81e21aa6eec5f1a3cbbc530bbc9c0beea3627cca9e6f1b6"
+    },
+    {
+      "bundle": "live",
+      "name": "legacy-184",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/legacy-184.keras",
+      "path": "model_assets/model.keras",
+      "bytes": 40325612,
+      "sha256": "89216cc24f029cad46d5cecbb59cac9ff05af78a7217b9096216dde768ffa76f"
+    },
+    {
+      "bundle": "research",
+      "name": "research-226-skeleton-v2",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/research-226-skeleton-v2.keras",
+      "path": "research/model_226/models/skeleton_v2.keras",
+      "bytes": 113367206,
+      "sha256": "83404b92a5f50cc7c6e2b3fc1a053166b1d6eff5867b2f6d64dfd1d17610aa14"
+    },
+    {
+      "bundle": "research",
+      "name": "research-226-skeleton-v4-seed",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/research-226-skeleton-v4-seed.keras",
+      "path": "research/model_226/models/skeleton_v4_seed.keras",
+      "bytes": 97878591,
+      "sha256": "b3e92d8a2dd98b5116a93f6aaf4580b631f35abbcaed056796ab09438914e2ab"
+    },
+    {
+      "bundle": "research",
+      "name": "research-226-skeleton-v6-seed",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/research-226-skeleton-v6-seed.keras",
+      "path": "research/model_226/models/skeleton_v6_seed.keras",
+      "bytes": 97878863,
+      "sha256": "a0ec53dbcf28b0868a2390330a0f9c27649ee4e2d48ff198f910318a1e37ebfe"
+    },
+    {
+      "bundle": "research",
+      "name": "research-226-hand-stream",
+      "url": "https://github.com/ErayKulkizaga/SignTurk/releases/download/model-assets-v1/research-226-hand-stream.keras",
+      "path": "research/model_226/models/hand_stream.keras",
+      "bytes": 25324457,
+      "sha256": "713702950ae0d2131bf20bcd47bd58186ced80f65d51c7dec6d6f88ab169c8ec"
+    },
+    {
+      "bundle": "research",
+      "name": "yolox-m-onnx",
+      "url": "https://huggingface.co/memescreamer/yolox-onnx/resolve/main/yolox_m.onnx",
+      "path": "research/model_226/models/rtmw_hf/yolox_m.onnx",
+      "bytes": 101259744,
+      "sha256": "21ff6cfdeb53b013bac2249599e55f00bff3cfdfdab37ed7a4620818c1d15b3f"
+    },
+    {
+      "bundle": "research",
+      "name": "rtmw-wholebody-onnx",
+      "url": "https://huggingface.co/Izymka/rtmw-dw-x-l_simcc-cocktail14/resolve/main/rtmw-dw-x-l_simcc-cocktail14.onnx",
+      "path": "research/model_226/models/rtmw_hf/rtmw-dw-x-l_simcc-cocktail14.onnx",
+      "bytes": 229320930,
+      "sha256": "bd033156e5104c4f5d2edfe0453e02661e30a2f3da453ec93c8764d561b83054"
+    }
+  ]
+}

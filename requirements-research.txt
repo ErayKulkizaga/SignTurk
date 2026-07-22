@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Optional 226-class RTMW/RTMPose research runtime and evaluation
+onnxruntime==1.26.0
+rtmlib==0.0.15
+matplotlib==3.9.2
+scikit-learn==1.5.2
