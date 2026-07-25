@@ -34,6 +34,15 @@ Real-time Turkish Sign Language (TİD) recognition, sentence assembly, speech ou
 > repository is runnable locally, but it is not presented as a safety-critical or
 > production interpreting service.
 
+## Contribution Scope
+
+SignTurk was co-developed as a graduation-project team effort. Eray Kulkizaga led
+the machine-learning work across model design, training, and evaluation, and
+implemented nearly all of the FastAPI backend, including real-time inference,
+WebSocket communication, authentication, persistence, and operational APIs.
+Interface, data preparation, integration, and 3D animation work was shared across
+the team.
+
 ## Why SignTurk
 
 SignTurk turns isolated TİD signs captured by a standard RGB webcam into approved words and readable Turkish sentences. The same platform can replay supported words on a Three.js avatar and optionally synthesize the assembled sentence through gTTS.
