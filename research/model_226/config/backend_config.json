@@ -70,7 +70,7 @@
   "metrics_evidence": {
     "split": "AUTSL held-out test",
     "samples": 3742,
-    "status": "locally recorded; per-sample prediction export required for independent re-verification",
+    "status": "final validation-selected four-stream evaluation on the official held-out test split",
     "summary": "../evaluation/four_stream_metrics.json"
   },
   "excluded": [

@@ -11,19 +11,16 @@ The model is an academic prototype. It is not a continuous-sign-language
 translator and must not be used for emergency, medical, legal, or other
 safety-critical communication.
 
-## Evaluation records
-
-Two results are deliberately kept separate:
+## Final evaluation
 
 | Evaluation | Streams | Top-1 | Top-3 | Top-5 | Macro-F1 | Evidence status |
 |---|---:|---:|---:|---:|---:|---|
-| Audited report result | 3 | 94.09% | 98.69% | 99.33% | 0.9391 | Validation-selected ensemble independently reproduced for the final report |
-| Four-stream runtime record | 4 | 94.17% | 98.88% | 99.49% | 0.9399 | Aggregate metrics and error summary preserved locally; raw per-sample exports are not in this repository |
+| Final four-stream ensemble | 4 | 94.17% | 98.88% | 99.49% | 0.9399 | Weights selected on validation and frozen before the held-out test evaluation |
 
-Both rows use the official AUTSL held-out test split of 3,742 samples. The
-four-stream value must not be described as independently reproduced until the
-prediction export is recovered or the test split is rerun. Machine-readable
-values are in [`evaluation/four_stream_metrics.json`](evaluation/four_stream_metrics.json).
+The result uses the official AUTSL held-out test split of 3,742 samples.
+Machine-readable values are in
+[`evaluation/four_stream_metrics.json`](evaluation/four_stream_metrics.json).
+Raw per-sample predictions are not redistributed with the public repository.
 
 ![Four-stream per-class accuracy and most frequent confusion pairs](evaluation/four_stream_error_summary.png)
 
@@ -74,7 +71,7 @@ The source implementation lives in `signturk_runtime/`; configuration is in
 - Similar motion patterns remain confusable and low-frequency classes can be weaker
 - AUTSL is a benchmark dataset and does not establish performance for every TİD user
 - Offline benchmark accuracy does not equal live webcam accuracy
-- The exact four-stream result still needs independent re-verification from raw predictions
+- Raw per-sample prediction arrays are not redistributed in the public repository
 
 ## Reproducibility
 

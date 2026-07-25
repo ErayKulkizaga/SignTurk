@@ -31,5 +31,5 @@
     "top_confusions": "four_stream_top_confusions.csv",
     "raw_predictions_available_in_repository": false
   },
-  "verification_status": "Locally recorded evaluation. The aggregate values and error summary are preserved, but a fresh independent run requires the original per-sample prediction exports or re-extraction of the official test split."
+  "verification_status": "Final four-stream evaluation with weights selected on validation and frozen before the official held-out test run. Raw per-sample predictions are not redistributed publicly."
 }

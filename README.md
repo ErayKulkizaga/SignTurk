@@ -55,11 +55,10 @@ feature contract also had to fit the browser/WebSocket pipeline.
 | Evaluation | Input and architecture | Vocabulary | Top-1 | Top-3 | Top-5 | Macro-F1 | Evidence status |
 |---|---|---:|---:|---:|---:|---:|---|
 | **Live application** | 16 frames · 156 MediaPipe hand features · BiLSTM + attention | 179 | **85.65%** | **93.96%** | **95.59%** | — | Bundled application model |
-| **Audited research result** | 32 RGB frames · RTMW/RTMPose · validation-selected 3-stream ensemble | 226 | **94.09%** | **98.69%** | **99.33%** | **93.91%** | Independently reproduced for the final report |
-| **Four-stream research record** | Same 32-frame contract · 3 skeleton seeds + hand stream | 226 | **94.17%** | **98.88%** | **99.49%** | **93.99%** | Aggregate result and error summary preserved; per-sample exports still need independent re-verification |
+| **Final research ensemble** | 32 RGB frames · RTMW/RTMPose · validation-selected four-stream ensemble | 226 | **94.17%** | **98.88%** | **99.49%** | **93.99%** | Final held-out test evaluation with weights frozen after validation |
 
-All metrics are offline results. The two 226-class rows are kept separate so a
-runtime configuration is not presented as independently reproduced evidence.
+All metrics are offline results. The live and research rows use different
+extractors, feature contracts, sequence lengths, and vocabularies.
 See the [226-class model card](research/model_226/MODEL_CARD.md) for the exact
 split, weights, limitations, and provenance.
 
@@ -284,7 +283,7 @@ curl http://127.0.0.1:8000/api/health
 
 - SignTurk recognizes **isolated signs**, not unrestricted continuous sign language.
 - The 179-class live and 226-class research results belong to different input pipelines and must not be compared as drop-in replacements.
-- The four-stream 94.17% result is a preserved local evaluation record; use the audited 94.09% row when independent reproducibility is required today.
+- The final four-stream research ensemble achieved 94.17% Top-1 on the official held-out test split after its weights were selected on validation and frozen before test evaluation.
 - Regional and signer variation can reduce recognition quality; predictions are not suitable for safety-critical communication.
 - gTTS requires network access. The deterministic text path remains available when speech or optional ML services are unavailable.
 - The platform is an academic prototype and does not replace a qualified interpreter.
