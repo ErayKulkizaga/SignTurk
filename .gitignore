@@ -32,6 +32,9 @@ static/
 tmp/
 *.log
 
+# Local source recordings; README-ready exports live in docs/videos/
+/videos/
+
 # Generated datasets and optional MediaPipe downloads
 dataset/train/
 dataset/validation/

@@ -17,6 +17,51 @@ Real-time Turkish Sign Language (TİD) recognition, sentence assembly, speech ou
 > **Outstanding Graduation Project · 2025–2026**
 > Eastern Mediterranean University, Department of Computer Engineering
 
+## See SignTurk in Motion
+
+Perform a TİD sign, watch the 32-frame buffer fill, and see the live prediction
+settle in real time. Click any preview to play the full recording.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="docs/videos/cay.mp4?raw=1">
+        <img src="docs/images/signs/cay-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for çay (tea)" width="100%">
+      </a>
+      <br><strong>ÇAY</strong> · tea<br>
+      <sub><a href="docs/videos/cay.mp4?raw=1">▶ Play the full video</a></sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="docs/videos/kardes.mp4?raw=1">
+        <img src="docs/images/signs/kardes-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for kardeş (sibling)" width="100%">
+      </a>
+      <br><strong>KARDEŞ</strong> · sibling<br>
+      <sub><a href="docs/videos/kardes.mp4?raw=1">▶ Play the full video</a></sub>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="25%" align="center">
+      <a href="docs/videos/degistirmek.mp4?raw=1"><img src="docs/images/signs/degistirmek.jpg" alt="SignTurk recognizing değiştirmek (change)" width="100%"></a>
+      <br><strong>DEĞİŞTİRMEK</strong><br><sub><a href="docs/videos/degistirmek.mp4?raw=1">▶ Watch</a></sub>
+    </td>
+    <td width="25%" align="center">
+      <a href="docs/videos/kopek.mp4?raw=1"><img src="docs/images/signs/kopek.jpg" alt="SignTurk recognizing köpek (dog)" width="100%"></a>
+      <br><strong>KÖPEK</strong><br><sub><a href="docs/videos/kopek.mp4?raw=1">▶ Watch</a></sub>
+    </td>
+    <td width="25%" align="center">
+      <a href="docs/videos/kopru.mp4?raw=1"><img src="docs/images/signs/kopru.jpg" alt="SignTurk recognizing köprü (bridge)" width="100%"></a>
+      <br><strong>KÖPRÜ</strong><br><sub><a href="docs/videos/kopru.mp4?raw=1">▶ Watch</a></sub>
+    </td>
+    <td width="25%" align="center">
+      <a href="docs/videos/ben.mp4?raw=1"><img src="docs/images/signs/ben.jpg" alt="SignTurk recognizing ben (I/me)" width="100%"></a>
+      <br><strong>BEN</strong><br><sub><a href="docs/videos/ben.mp4?raw=1">▶ Watch</a></sub>
+    </td>
+  </tr>
+</table>
+
 <p align="center">
   <img src="docs/images/product-overview.png" alt="SignTurk product overview" width="100%">
 </p>
@@ -179,6 +224,8 @@ research/evaluate_predictions.py  Full metrics and confusion-matrix generator
 dataset/landmarks/         Per-word landmark sequences for avatar playback
 text_processing/           Turkish sentence, grammar, evaluation, and TTS modules
 docs/images/               Product screenshots used in this README
+docs/images/signs/         Animated previews and thumbnails for the sign video gallery
+docs/videos/               Compressed H.264 product demonstration videos
 tests/                     Lightweight grammar and model-asset contract checks
 extract_landmarks.py       Offline AUTSL landmark extraction utility
 tools/download_models.py   Checksum-verified model asset installer
