@@ -39,25 +39,36 @@ settle in real time. Click any preview to play the full recording.
       <sub><a href="docs/videos/kardes.mp4?raw=1">▶ Play the full video</a></sub>
     </td>
   </tr>
-</table>
-
-<table>
   <tr>
-    <td width="25%" align="center">
-      <a href="docs/videos/degistirmek.mp4?raw=1"><img src="docs/images/signs/degistirmek.jpg" alt="SignTurk recognizing değiştirmek (change)" width="100%"></a>
-      <br><strong>DEĞİŞTİRMEK</strong><br><sub><a href="docs/videos/degistirmek.mp4?raw=1">▶ Watch</a></sub>
+    <td width="50%" align="center">
+      <a href="docs/videos/degistirmek.mp4?raw=1">
+        <img src="docs/images/signs/degistirmek-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for değiştirmek (change)" width="100%">
+      </a>
+      <br><strong>DEĞİŞTİRMEK</strong> · change<br>
+      <sub><a href="docs/videos/degistirmek.mp4?raw=1">▶ Play the full video</a></sub>
     </td>
-    <td width="25%" align="center">
-      <a href="docs/videos/kopek.mp4?raw=1"><img src="docs/images/signs/kopek.jpg" alt="SignTurk recognizing köpek (dog)" width="100%"></a>
-      <br><strong>KÖPEK</strong><br><sub><a href="docs/videos/kopek.mp4?raw=1">▶ Watch</a></sub>
+    <td width="50%" align="center">
+      <a href="docs/videos/kopek.mp4?raw=1">
+        <img src="docs/images/signs/kopek-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for köpek (dog)" width="100%">
+      </a>
+      <br><strong>KÖPEK</strong> · dog<br>
+      <sub><a href="docs/videos/kopek.mp4?raw=1">▶ Play the full video</a></sub>
     </td>
-    <td width="25%" align="center">
-      <a href="docs/videos/kopru.mp4?raw=1"><img src="docs/images/signs/kopru.jpg" alt="SignTurk recognizing köprü (bridge)" width="100%"></a>
-      <br><strong>KÖPRÜ</strong><br><sub><a href="docs/videos/kopru.mp4?raw=1">▶ Watch</a></sub>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="docs/videos/kopru.mp4?raw=1">
+        <img src="docs/images/signs/kopru-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for köprü (bridge)" width="100%">
+      </a>
+      <br><strong>KÖPRÜ</strong> · bridge<br>
+      <sub><a href="docs/videos/kopru.mp4?raw=1">▶ Play the full video</a></sub>
     </td>
-    <td width="25%" align="center">
-      <a href="docs/videos/ben.mp4?raw=1"><img src="docs/images/signs/ben.jpg" alt="SignTurk recognizing ben (I/me)" width="100%"></a>
-      <br><strong>BEN</strong><br><sub><a href="docs/videos/ben.mp4?raw=1">▶ Watch</a></sub>
+    <td width="50%" align="center">
+      <a href="docs/videos/ben.mp4?raw=1">
+        <img src="docs/images/signs/ben-preview.gif" alt="SignTurk recognizing the Turkish Sign Language sign for ben (I/me)" width="100%">
+      </a>
+      <br><strong>BEN</strong> · I / me<br>
+      <sub><a href="docs/videos/ben.mp4?raw=1">▶ Play the full video</a></sub>
     </td>
   </tr>
 </table>
