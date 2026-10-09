@@ -1216,7 +1216,7 @@ async def startup_event():
         db.close()
 
     load_model_assets()
-    load_animation_assets()
+    #load_animation_assets()
 
     logger.info("=" * 60)
     logger.info("  SignTurk Backend v3.1 Ready")
